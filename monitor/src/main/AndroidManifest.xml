@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="github.leavesc.monitor">
+
+    <application>
+        <activity
+            android:name=".ui.MonitorActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:taskAffinity="github.leavesc.monitor.singleTask"
+            android:theme="@style/MonitorAppTheme" />
+        <activity
+            android:name=".ui.MonitorDetailsActivity"
+            android:launchMode="singleTask"
+            android:parentActivityName=".ui.MonitorActivity"
+            android:screenOrientation="portrait"
+            android:taskAffinity="github.leavesc.monitor.singleTask"
+            android:theme="@style/MonitorAppTheme" />
+
+        <service
+            android:name=".service.ClearMonitorService"
+            android:exported="false" />
+    </application>
+
+</manifest>

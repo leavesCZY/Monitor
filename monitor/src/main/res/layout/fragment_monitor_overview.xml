@@ -1,0 +1,284 @@
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/monitor_rootBg"
+    android:scrollbars="vertical">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:stretchColumns="1">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Url" />
+
+            <TextView
+                android:id="@+id/tv_url"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="https://example.com/path/to/resource?here=might_be_really_long" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Method" />
+
+            <TextView
+                android:id="@+id/tv_method"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="GET" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Protocol" />
+
+            <TextView
+                android:id="@+id/tv_protocol"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="HTTP/1.1" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status" />
+
+            <TextView
+                android:id="@+id/tv_status"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Complete" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Response" />
+
+            <TextView
+                android:id="@+id/tv_response"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="200 OK" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SSL" />
+
+            <TextView
+                android:id="@+id/tv_ssl"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Yes" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TlsVersion" />
+
+            <TextView
+                android:id="@+id/tv_tlsVersion"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="tlsVersion" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CipherSuite" />
+
+            <TextView
+                android:id="@+id/tv_cipherSuite"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="CipherSuite" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Request Time" />
+
+            <TextView
+                android:id="@+id/tv_request_time"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="05/02/17 11:52:49" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Response Time" />
+
+            <TextView
+                android:id="@+id/tv_response_time"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="05/02/17 11:52:49" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duration" />
+
+            <TextView
+                android:id="@+id/tv_duration"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="405 ms" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Request Size" />
+
+            <TextView
+                android:id="@+id/tv_request_size"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="53 KB" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Response Size" />
+
+            <TextView
+                android:id="@+id/tv_response_size"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="148 KB" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                style="@style/monitor.TextAppearance.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Size" />
+
+            <TextView
+                android:id="@+id/tv_total_size"
+                style="@style/monitor.TextAppearance.Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="201 KB" />
+
+        </TableRow>
+
+    </TableLayout>
+
+</androidx.core.widget.NestedScrollView>

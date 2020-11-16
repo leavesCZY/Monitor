@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="monitor_status_success">#2E3032</color>
+    <color name="monitor_status_requested">#81877F</color>
+    <color name="monitor_status_error">#FF5722</color>
+    <color name="monitor_status_300">#5C6BC0</color>
+    <color name="monitor_status_400">#FFB74D</color>
+    <color name="monitor_status_500">#F06292</color>
+    <color name="monitor_rootBg">#F0F0F0</color>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="monitor_common_padding">4dp</dimen>
+    <dimen name="monitor_common_big_padding">8dp</dimen>
+</resources>
