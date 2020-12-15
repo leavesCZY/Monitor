@@ -51,10 +51,18 @@ class MonitorInterceptor(context: Context) : Interceptor {
             httpInformation.error = e.toString()
             throw e
         } finally {
-            update(httpInformation)
+            try {
+                update(httpInformation)
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
         }
-        processResponse(response, httpInformation)
-        update(httpInformation)
+        try {
+            processResponse(response, httpInformation)
+            update(httpInformation)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
         return response
     }
 
