@@ -60,7 +60,6 @@
         android:id="@+id/ivSsl"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        android:contentDescription="@string/app_name"
         android:src="@drawable/icon_monitor_ssl"
         app:layout_constraintBottom_toBottomOf="@+id/tvHost"
         app:layout_constraintStart_toEndOf="@id/tvHost"
