@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/btn_doApiServiceFirst"
+        android:id="@+id/btnDoApiServiceFirst"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -15,7 +15,7 @@
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/btn_doApiServiceSecond"
+        android:id="@+id/btnDoApiServiceSecond"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"

@@ -213,7 +213,7 @@
                 android:text="Duration" />
 
             <TextView
-                android:id="@+id/tv_duration"
+                android:id="@+id/tvDuration"
                 style="@style/monitor.TextAppearance.Value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
