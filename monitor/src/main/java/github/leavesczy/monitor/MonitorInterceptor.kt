@@ -12,7 +12,6 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.http.promisesBody
 import okio.Buffer
-import java.io.IOException
 
 /**
  * @Author: leavesCZY
@@ -34,7 +33,6 @@ class MonitorInterceptor(context: Application) : Interceptor {
         ContextHolder.init(context = context)
     }
 
-    @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
 

@@ -4,12 +4,14 @@
     <application>
         <activity
             android:name=".ui.MonitorActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:taskAffinity="github.leavesczy.monitor.singleTask"
             android:theme="@style/MonitorAppTheme" />
         <activity
             android:name=".ui.MonitorDetailsActivity"
+            android:exported="false"
             android:launchMode="singleTask"
             android:parentActivityName=".ui.MonitorActivity"
             android:screenOrientation="portrait"

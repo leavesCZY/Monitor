@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
                 level = HttpLoggingInterceptor.Level.BODY
             })
             .addInterceptor(FilterInterceptor())
-            .addNetworkInterceptor(MonitorInterceptor(application))
+            .addNetworkInterceptor(MonitorInterceptor(context = application))
             .build()
     }
 

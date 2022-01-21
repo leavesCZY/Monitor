@@ -17,7 +17,7 @@ import github.leavesczy.monitor.viewmodel.MonitorDetailViewModel
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-class MonitorOverviewFragment : Fragment() {
+internal class MonitorOverviewFragment : Fragment() {
 
     companion object {
 
