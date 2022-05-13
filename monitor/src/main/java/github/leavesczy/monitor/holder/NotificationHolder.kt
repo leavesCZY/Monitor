@@ -4,14 +4,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.LongSparseArray
 import androidx.core.app.NotificationCompat
 import github.leavesczy.monitor.Monitor.getLaunchIntent
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.db.HttpInformation
-import github.leavesczy.monitor.service.ClearMonitorService
 
 /**
  * @Author: leavesCZY
@@ -43,15 +41,6 @@ internal object NotificationHolder {
 
     @Volatile
     private var showNotification = true
-
-    private val clearAction: NotificationCompat.Action
-        get() {
-            val intent = PendingIntent.getService(
-                context, 200,
-                Intent(context, ClearMonitorService::class.java), PendingIntent.FLAG_ONE_SHOT
-            )
-            return NotificationCompat.Action(R.drawable.icon_monitor_launcher, "Clear", intent)
-        }
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -121,7 +110,17 @@ internal object NotificationHolder {
     }
 
     private fun getContentIntent(context: Context): PendingIntent {
-        return PendingIntent.getActivity(context, 100, getLaunchIntent(context), 0)
+        val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        return PendingIntent.getActivity(
+            context,
+            100,
+            getLaunchIntent(context),
+            flag
+        )
     }
 
 }

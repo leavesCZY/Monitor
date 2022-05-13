@@ -13,10 +13,10 @@ android {
     }
     signingConfigs {
         releaseConfig {
-            storeFile file("..\\key.jks")
-            storePassword "123456"
+            storeFile file(rootDir.absolutePath + File.separator + "key.jks")
             keyAlias "leavesCZY"
             keyPassword "123456"
+            storePassword "123456"
             v1SigningEnabled true
             v2SigningEnabled true
         }
