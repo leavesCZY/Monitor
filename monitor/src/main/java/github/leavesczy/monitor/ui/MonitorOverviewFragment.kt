@@ -6,10 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.logic.MonitorDetailViewModel
 import github.leavesczy.monitor.utils.FormatUtils
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * @Author: leavesCZY
@@ -71,25 +76,29 @@ internal class MonitorOverviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        monitorDetailViewModel.recordLiveData.observe(viewLifecycleOwner) {
-            tvUrl.text = it.url
-            tvMethod.text = it.method
-            tvProtocol.text = it.protocol
-            tvStatus.text = it.httpStatus.toString()
-            tvResponse.text = it.responseSummaryText
-            tvSsl.text = if (it.isSsl) {
-                "Yes"
-            } else {
-                "No"
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                monitorDetailViewModel.httpRecordFlow.collectLatest {
+                    tvUrl.text = it.url
+                    tvMethod.text = it.method
+                    tvProtocol.text = it.protocol
+                    tvStatus.text = it.httpStatus.toString()
+                    tvResponse.text = it.responseSummaryText
+                    tvSsl.text = if (it.isSsl) {
+                        "Yes"
+                    } else {
+                        "No"
+                    }
+                    tvTlsVersion.text = it.responseTlsVersion
+                    tvCipherSuite.text = it.responseCipherSuite
+                    tvRequestTime.text = it.requestDateFormatLong
+                    tvResponseTime.text = it.responseDateFormatLong
+                    tvDuration.text = it.durationFormat
+                    tvRequestSize.text = FormatUtils.formatBytes(it.requestContentLength)
+                    tvResponseSize.text = FormatUtils.formatBytes(it.responseContentLength)
+                    tvTotalSize.text = it.totalSizeFormat
+                }
             }
-            tvTlsVersion.text = it.responseTlsVersion
-            tvCipherSuite.text = it.responseCipherSuite
-            tvRequestTime.text = it.requestDateFormatLong
-            tvResponseTime.text = it.responseDateFormatLong
-            tvDuration.text = it.durationFormat
-            tvRequestSize.text = FormatUtils.formatBytes(it.requestContentLength)
-            tvResponseSize.text = FormatUtils.formatBytes(it.responseContentLength)
-            tvTotalSize.text = it.totalSizeFormat
         }
     }
 

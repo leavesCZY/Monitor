@@ -12,7 +12,7 @@ val okHttpClient = OkHttpClient.Builder()
     .build()
 ```
 
-同时引入 debug 和 release 版本的依赖，release 版本的 MonitorInterceptor 不会做任何操作
+同时引入 debug 和 release 版本的依赖库，release 模式下的 MonitorInterceptor 不会执行任何操作
 
 ```kotlin
 dependencyResolutionManagement {

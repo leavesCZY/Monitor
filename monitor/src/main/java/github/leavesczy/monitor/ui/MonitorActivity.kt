@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import github.leavesczy.monitor.R
@@ -12,9 +14,9 @@ import github.leavesczy.monitor.adapter.MonitorAdapter
 import github.leavesczy.monitor.adapter.MonitorItemClickListener
 import github.leavesczy.monitor.db.MonitorDatabase
 import github.leavesczy.monitor.db.MonitorHttp
-import github.leavesczy.monitor.logic.MonitorViewModel
 import github.leavesczy.monitor.provider.NotificationProvider
-import kotlin.concurrent.thread
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * @Author: leavesCZY
@@ -24,8 +26,8 @@ import kotlin.concurrent.thread
  */
 internal class MonitorActivity : AppCompatActivity() {
 
-    private val monitorViewModel by lazy(mode = LazyThreadSafetyMode.NONE) {
-        ViewModelProvider(this)[MonitorViewModel::class.java]
+    private val httpRecordFlow by lazy(mode = LazyThreadSafetyMode.NONE) {
+        MonitorDatabase.instance.monitorDao.queryRecord(limit = 400)
     }
 
     private val monitorAdapter by lazy(mode = LazyThreadSafetyMode.NONE) {
@@ -56,8 +58,12 @@ internal class MonitorActivity : AppCompatActivity() {
     }
 
     private fun initObserver() {
-        monitorViewModel.allRecordLiveData.observe(this) {
-            monitorAdapter.setData(it)
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                httpRecordFlow.collectLatest {
+                    monitorAdapter.setData(it)
+                }
+            }
         }
     }
 
@@ -69,11 +75,11 @@ internal class MonitorActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.clear -> {
-                thread {
+                lifecycleScope.launch {
                     MonitorDatabase.instance.monitorDao.deleteAll()
+                    NotificationProvider.clearBuffer()
+                    NotificationProvider.dismiss()
                 }
-                NotificationProvider.clearBuffer()
-                NotificationProvider.dismiss()
             }
 
             android.R.id.home -> {

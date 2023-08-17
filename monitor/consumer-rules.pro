@@ -1,0 +1,3 @@
+-keep class github.leavesczy.monitor.db.MonitorHttpHeader { *; }
+-keep class github.leavesczy.monitor.db.MonitorHttpStatus { *; }
+-keep class github.leavesczy.monitor.db.MonitorHttp { *; }

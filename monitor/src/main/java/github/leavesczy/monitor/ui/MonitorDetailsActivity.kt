@@ -6,15 +6,21 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.adapter.MonitorFragmentAdapter
+import github.leavesczy.monitor.db.MonitorHttp
 import github.leavesczy.monitor.logic.MonitorDetailViewModel
 import github.leavesczy.monitor.utils.FormatUtils
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * @Author: leavesCZY
@@ -45,6 +51,8 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
         })[MonitorDetailViewModel::class.java]
     }
 
+    private var monitorHttp: MonitorHttp? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_monitor_details)
@@ -67,8 +75,13 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
     }
 
     private fun initObserver() {
-        monitorDetailViewModel.recordLiveData.observe(this) {
-            supportActionBar?.title = String.format("%s  %s", it.method, it.path)
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                monitorDetailViewModel.httpRecordFlow.collectLatest {
+                    monitorHttp = it
+                    supportActionBar?.title = String.format("%s  %s", it.method, it.path)
+                }
+            }
         }
     }
 
@@ -80,9 +93,9 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.share -> {
-                val monitorHttp = monitorDetailViewModel.recordLiveData.value
-                if (monitorHttp != null) {
-                    share(FormatUtils.getShareText(monitorHttp))
+                val http = monitorHttp
+                if (http != null) {
+                    share(content = FormatUtils.getShareText(monitorHttp = http))
                 }
             }
 

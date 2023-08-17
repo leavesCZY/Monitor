@@ -1,5 +1,6 @@
 package github.leavesczy.monitor.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import github.leavesczy.monitor.utils.FormatUtils
@@ -21,33 +22,55 @@ internal enum class MonitorHttpStatus {
 @Entity(tableName = MonitorDatabase.MonitorTableName)
 internal data class MonitorHttp(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     val id: Long,
+    @ColumnInfo(name = "url")
     val url: String,
+    @ColumnInfo(name = "host")
     val host: String,
+    @ColumnInfo(name = "path")
     val path: String,
+    @ColumnInfo(name = "scheme")
     val scheme: String,
+    @ColumnInfo(name = "protocol")
     val protocol: String,
+    @ColumnInfo(name = "method")
     val method: String,
+    @ColumnInfo(name = "requestHeaders")
     val requestHeaders: List<MonitorHttpHeader>,
+    @ColumnInfo(name = "requestBody")
     val requestBody: String,
+    @ColumnInfo(name = "requestContentType")
     val requestContentType: String,
+    @ColumnInfo(name = "requestContentLength")
     val requestContentLength: Long,
+    @ColumnInfo(name = "requestDate")
     val requestDate: Long,
+    @ColumnInfo(name = "responseHeaders")
     val responseHeaders: List<MonitorHttpHeader>,
+    @ColumnInfo(name = "responseBody")
     val responseBody: String,
+    @ColumnInfo(name = "responseContentType")
     val responseContentType: String,
+    @ColumnInfo(name = "responseContentLength")
     val responseContentLength: Long,
+    @ColumnInfo(name = "responseDate")
     val responseDate: Long,
+    @ColumnInfo(name = "responseTlsVersion")
     val responseTlsVersion: String,
+    @ColumnInfo(name = "responseCipherSuite")
     val responseCipherSuite: String,
+    @ColumnInfo(name = "responseCode")
     val responseCode: Int = DEFAULT_RESPONSE_CODE,
+    @ColumnInfo(name = "responseMessage")
     val responseMessage: String,
+    @ColumnInfo(name = "error")
     val error: String?
 ) {
 
     companion object {
 
-        private const val DEFAULT_RESPONSE_CODE = -100
+        private const val DEFAULT_RESPONSE_CODE = -1024
 
     }
 

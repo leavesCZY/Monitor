@@ -1,13 +1,14 @@
 package github.leavesczy.monitor.provider
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.LongSparseArray
+import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.db.MonitorHttp
 import github.leavesczy.monitor.ui.MonitorActivity
@@ -22,7 +23,9 @@ internal object NotificationProvider {
 
     private const val CHANNEL_ID = "github.leavesczy.monitor"
 
-    private const val CHANNEL_NAME = "Http Notifications"
+    private const val CHANNEL_NAME = "Monitor"
+
+    private const val CHANNEL_DESCRIPTION = "Automatically record http requests"
 
     private const val NOTIFICATION_TITLE = "Recording Http Activity"
 
@@ -30,10 +33,13 @@ internal object NotificationProvider {
 
     private const val BUFFER_SIZE = 10
 
-    private val transactionBuffer = LongSparseArray<MonitorHttp>()
+    private val context: Context
+        get() = ContextProvider.context
 
     private val notificationManager =
-        ContextProvider.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    private val transactionBuffer = LongSparseArray<MonitorHttp>()
 
     private var transactionCount: Int = 0
 
@@ -41,26 +47,25 @@ internal object NotificationProvider {
     private var showNotification = true
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(
-                NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT
-                )
-            )
-        }
+        val channel = NotificationChannelCompat.Builder(
+            CHANNEL_ID,
+            NotificationManagerCompat.IMPORTANCE_DEFAULT
+        ).setName(CHANNEL_NAME)
+            .setDescription(CHANNEL_DESCRIPTION)
+            .setSound(null, null)
+            .setLightsEnabled(false)
+            .setVibrationEnabled(false)
+            .build()
+        NotificationManagerCompat.from(context).createNotificationChannel(channel)
     }
 
     @Synchronized
     fun show(monitorHttp: MonitorHttp) {
         if (showNotification) {
-            addToBuffer(monitorHttp)
-            val builder = NotificationCompat.Builder(ContextProvider.context, CHANNEL_ID)
-                .setContentIntent(getContentIntent(ContextProvider.context))
-                .setLocalOnly(true)
+            addToBuffer(monitorHttp = monitorHttp)
+            val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentIntent(getContentIntent(context = context))
                 .setOnlyAlertOnce(true)
-                .setSound(null)
                 .setSmallIcon(R.drawable.icon_monitor_launcher)
                 .setContentTitle(NOTIFICATION_TITLE)
                 .setAutoCancel(false)

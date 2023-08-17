@@ -1,10 +1,10 @@
 package github.leavesczy.monitor.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 /**
  * @Author: leavesCZY
@@ -21,13 +21,13 @@ internal interface MonitorDao {
     @Update
     fun update(model: MonitorHttp)
 
-    @Query("SELECT * FROM ${MonitorDatabase.MonitorTableName} WHERE id =:id")
-    fun queryRecord(id: Long): LiveData<MonitorHttp>
+    @Query("select * from ${MonitorDatabase.MonitorTableName} where id =:id")
+    fun queryRecord(id: Long): Flow<MonitorHttp>
 
-    @Query("SELECT * FROM ${MonitorDatabase.MonitorTableName} order by id desc limit :limit")
-    fun queryRecord(limit: Int): LiveData<List<MonitorHttp>>
+    @Query("select * from ${MonitorDatabase.MonitorTableName} order by id desc limit :limit")
+    fun queryRecord(limit: Int): Flow<List<MonitorHttp>>
 
-    @Query("DELETE FROM ${MonitorDatabase.MonitorTableName}")
-    fun deleteAll()
+    @Query("delete from ${MonitorDatabase.MonitorTableName}")
+    suspend fun deleteAll()
 
 }

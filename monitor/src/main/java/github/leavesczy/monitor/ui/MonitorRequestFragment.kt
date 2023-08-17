@@ -7,9 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.logic.MonitorDetailViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * @Author: leavesCZY
@@ -48,15 +53,19 @@ internal class MonitorRequestFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        monitorDetailViewModel.recordLiveData.observe(viewLifecycleOwner) {
-            val headersString = it.getRequestHeadersString(true)
-            if (headersString.isBlank()) {
-                tvHeaders.visibility = View.GONE
-            } else {
-                tvHeaders.visibility = View.VISIBLE
-                tvHeaders.text = Html.fromHtml(headersString)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                monitorDetailViewModel.httpRecordFlow.collectLatest {
+                    val headersString = it.getRequestHeadersString(withMarkup = true)
+                    if (headersString.isBlank()) {
+                        tvHeaders.visibility = View.GONE
+                    } else {
+                        tvHeaders.visibility = View.VISIBLE
+                        tvHeaders.text = Html.fromHtml(headersString)
+                    }
+                    tvBody.text = it.requestBodyFormat
+                }
             }
-            tvBody.text = it.requestBodyFormat
         }
     }
 

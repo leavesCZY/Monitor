@@ -11,7 +11,7 @@ import github.leavesczy.monitor.db.MonitorDatabase
  */
 internal class MonitorDetailViewModel(id: Long) : ViewModel() {
 
-    val recordLiveData by lazy(mode = LazyThreadSafetyMode.NONE) {
+    val httpRecordFlow by lazy(mode = LazyThreadSafetyMode.NONE) {
         MonitorDatabase.instance.monitorDao.queryRecord(id = id)
     }
 

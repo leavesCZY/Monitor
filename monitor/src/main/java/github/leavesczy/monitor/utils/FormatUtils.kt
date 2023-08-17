@@ -36,24 +36,12 @@ internal object FormatUtils {
 
     private val TIME_LONG = SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS", Locale.CHINA)
 
-    private fun formatData(date: Date?, format: SimpleDateFormat): String {
-        return if (date == null) {
-            ""
-        } else format.format(date)
+    fun getDateFormatShort(date: Long): String {
+        return TIME_SHORT.format(Date(date))
     }
 
-    fun getDateFormatShort(date: Long?): String {
-        if (date == null) {
-            return ""
-        }
-        return formatData(Date(date), TIME_SHORT)
-    }
-
-    fun getDateFormatLong(date: Long?): String {
-        if (date == null) {
-            return ""
-        }
-        return formatData(Date(date), TIME_LONG)
+    fun getDateFormatLong(date: Long): String {
+        return TIME_LONG.format(Date(date))
     }
 
     fun formatBytes(bytes: Long): String {
@@ -84,32 +72,30 @@ internal object FormatUtils {
         )
     }
 
-    fun formatHeaders(httpHeaders: List<MonitorHttpHeader>?, withMarkup: Boolean): String {
+    fun formatHeaders(httpHeaders: List<MonitorHttpHeader>, withMarkup: Boolean): String {
         val out = StringBuilder()
-        if (httpHeaders != null) {
-            for ((name, value) in httpHeaders) {
-                out.append(if (withMarkup) "<b>" else "")
-                    .append(name)
-                    .append(": ")
-                    .append(if (withMarkup) "</b>" else "")
-                    .append(value)
-                    .append(if (withMarkup) "<br />" else "\n")
-            }
+        for ((name, value) in httpHeaders) {
+            out.append(if (withMarkup) "<b>" else "")
+                .append(name)
+                .append(": ")
+                .append(if (withMarkup) "</b>" else "")
+                .append(value)
+                .append(if (withMarkup) "<br />" else "\n")
         }
         return out.toString()
     }
 
-    fun formatBody(body: String, contentType: String?): String {
+    fun formatBody(body: String, contentType: String): String {
         return when {
             body.isBlank() -> {
                 ""
             }
 
-            contentType?.contains("json", true) == true -> {
+            contentType.contains("json", true) -> {
                 JsonProvider.setPrettyPrinting(body)
             }
 
-            contentType?.contains("xml", true) == true -> {
+            contentType.contains("xml", true) -> {
                 formatXml(body)
             }
 

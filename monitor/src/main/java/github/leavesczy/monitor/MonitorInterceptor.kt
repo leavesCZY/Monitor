@@ -29,26 +29,27 @@ class MonitorInterceptor(context: Context) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        var httpInformation = buildHttpInformation(request = request)
-        val id = insert(monitorHttp = httpInformation)
-        httpInformation = httpInformation.copy(id = id)
+        var monitorHttp = buildMonitorHttp(request = request)
+        monitorHttp = insert(monitorHttp = monitorHttp)
+        NotificationProvider.show(monitorHttp = monitorHttp)
         val response: Response
         try {
             response = chain.proceed(request)
             try {
-                httpInformation = processResponse(
+                monitorHttp = processResponse(
                     response = response,
-                    monitorHttp = httpInformation
+                    monitorHttp = monitorHttp
                 )
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
         } catch (e: Throwable) {
-            httpInformation = httpInformation.copy(error = e.toString())
+            monitorHttp = monitorHttp.copy(error = e.toString())
             throw e
         } finally {
             try {
-                update(monitorHttp = httpInformation)
+                update(monitorHttp = monitorHttp)
+                NotificationProvider.show(monitorHttp = monitorHttp)
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
@@ -56,7 +57,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
         return response
     }
 
-    private fun buildHttpInformation(request: Request): MonitorHttp {
+    private fun buildMonitorHttp(request: Request): MonitorHttp {
         val requestDate = System.currentTimeMillis()
         val requestBody = request.body
         val url = request.url.toString()
@@ -70,7 +71,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
         val scheme = uri.scheme ?: ""
         val method = request.method
         val requestHeaders = request.headers.map {
-            MonitorHttpHeader(it.first, it.second)
+            MonitorHttpHeader(name = it.first, value = it.second)
         }
         val mRequestBody =
             if (requestBody != null && ResponseUtils.bodyHasSupportedEncoding(request.headers)) {
@@ -119,10 +120,10 @@ class MonitorInterceptor(context: Context) : Interceptor {
         monitorHttp: MonitorHttp
     ): MonitorHttp {
         val requestHeaders = response.request.headers.map {
-            MonitorHttpHeader(it.first, it.second)
+            MonitorHttpHeader(name = it.first, value = it.second)
         }
         val responseHeaders = response.headers.map {
-            MonitorHttpHeader(it.first, it.second)
+            MonitorHttpHeader(name = it.first, value = it.second)
         }
         val responseBody = response.body
         val responseContentType: String
@@ -132,16 +133,14 @@ class MonitorInterceptor(context: Context) : Interceptor {
             responseContentType = responseBody.contentType()?.toString() ?: ""
             responseContentLength = responseBody.contentLength()
             if (response.promisesBody()) {
-                val encodingIsSupported =
-                    ResponseUtils.bodyHasSupportedEncoding(response.headers)
+                val encodingIsSupported = ResponseUtils.bodyHasSupportedEncoding(response.headers)
                 if (encodingIsSupported) {
                     val buffer = ResponseUtils.getNativeSource(response)
                     responseContentLength = buffer.size
                     if (ResponseUtils.isProbablyUtf8(buffer)) {
                         if (responseBody.contentLength() != 0L) {
-                            val charset =
-                                responseBody.contentType()?.charset(Charsets.UTF_8)
-                                    ?: Charsets.UTF_8
+                            val charset = responseBody.contentType()?.charset(Charsets.UTF_8)
+                                ?: Charsets.UTF_8
                             mResponseBody = buffer.clone().readString(charset)
                         }
                     }
@@ -166,14 +165,12 @@ class MonitorInterceptor(context: Context) : Interceptor {
         )
     }
 
-    private fun insert(monitorHttp: MonitorHttp): Long {
+    private fun insert(monitorHttp: MonitorHttp): MonitorHttp {
         val id = MonitorDatabase.instance.monitorDao.insert(model = monitorHttp)
-        NotificationProvider.show(monitorHttp = monitorHttp.copy(id = id))
-        return id
+        return monitorHttp.copy(id = id)
     }
 
     private fun update(monitorHttp: MonitorHttp) {
-        NotificationProvider.show(monitorHttp = monitorHttp)
         MonitorDatabase.instance.monitorDao.update(model = monitorHttp)
     }
 
