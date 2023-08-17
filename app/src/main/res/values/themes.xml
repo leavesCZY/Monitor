@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Monitor.Samples.Base" parent="Theme.Material3.Light">
+        <item name="colorPrimary">@color/monitor_samples_top_bar</item>
+        <item name="colorSurface">@color/monitor_samples_top_bar</item>
+        <item name="colorOnSurface">@android:color/white</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+    </style>
+
+    <style name="Theme.Monitor.Samples" parent="Theme.Monitor.Samples.Base" />
+
+</resources>

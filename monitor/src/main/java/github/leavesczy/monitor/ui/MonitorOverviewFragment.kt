@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.monitor.R
+import github.leavesczy.monitor.logic.MonitorDetailViewModel
 import github.leavesczy.monitor.utils.FormatUtils
-import github.leavesczy.monitor.viewmodel.MonitorDetailViewModel
 
 /**
  * @Author: leavesCZY
@@ -41,27 +41,8 @@ internal class MonitorOverviewFragment : Fragment() {
     private lateinit var tvResponseSize: TextView
     private lateinit var tvTotalSize: TextView
 
-    private val monitorDetailViewModel by lazy {
-        ViewModelProvider(requireActivity()).get(MonitorDetailViewModel::class.java).apply {
-            recordLiveData.observe(viewLifecycleOwner, { information ->
-                information?.apply {
-                    tvUrl.text = url
-                    tvMethod.text = method
-                    tvProtocol.text = protocol
-                    tvStatus.text = status.toString()
-                    tvResponse.text = responseSummaryText
-                    tvSsl.text = if (isSsl) "Yes" else "No"
-                    tvTlsVersion.text = responseTlsVersion
-                    tvCipherSuite.text = responseCipherSuite
-                    tvRequestTime.text = requestDateFormatLong
-                    tvResponseTime.text = responseDateFormatLong
-                    tvDuration.text = durationFormat
-                    tvRequestSize.text = FormatUtils.formatBytes(requestContentLength)
-                    tvResponseSize.text = FormatUtils.formatBytes(responseContentLength)
-                    tvTotalSize.text = totalSizeFormat
-                }
-            })
-        }
+    private val monitorDetailViewModel by lazy(mode = LazyThreadSafetyMode.NONE) {
+        ViewModelProvider(requireActivity())[MonitorDetailViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -90,7 +71,26 @@ internal class MonitorOverviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        monitorDetailViewModel.init()
+        monitorDetailViewModel.recordLiveData.observe(viewLifecycleOwner) {
+            tvUrl.text = it.url
+            tvMethod.text = it.method
+            tvProtocol.text = it.protocol
+            tvStatus.text = it.httpStatus.toString()
+            tvResponse.text = it.responseSummaryText
+            tvSsl.text = if (it.isSsl) {
+                "Yes"
+            } else {
+                "No"
+            }
+            tvTlsVersion.text = it.responseTlsVersion
+            tvCipherSuite.text = it.responseCipherSuite
+            tvRequestTime.text = it.requestDateFormatLong
+            tvResponseTime.text = it.responseDateFormatLong
+            tvDuration.text = it.durationFormat
+            tvRequestSize.text = FormatUtils.formatBytes(it.requestContentLength)
+            tvResponseSize.text = FormatUtils.formatBytes(it.responseContentLength)
+            tvTotalSize.text = it.totalSizeFormat
+        }
     }
 
 }

@@ -1,11 +1,13 @@
 package github.leavesczy.monitor
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
-import github.leavesczy.monitor.db.HttpInformation
-import github.leavesczy.monitor.db.MonitorHttpInformationDatabase
-import github.leavesczy.monitor.holder.ContextHolder
-import github.leavesczy.monitor.holder.NotificationHolder
+import github.leavesczy.monitor.db.MonitorDatabase
+import github.leavesczy.monitor.db.MonitorHttp
+import github.leavesczy.monitor.db.MonitorHttpHeader
+import github.leavesczy.monitor.provider.ContextProvider
+import github.leavesczy.monitor.provider.NotificationProvider
 import github.leavesczy.monitor.utils.ResponseUtils
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -19,131 +21,160 @@ import okio.Buffer
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-class MonitorInterceptor(context: Application) : Interceptor {
-
-    companion object {
-
-        private val CHARSET_UTF8 = Charsets.UTF_8
-
-        private const val UnknownEncoding = "(encoded body omitted)"
-
-    }
+class MonitorInterceptor(context: Context) : Interceptor {
 
     init {
-        ContextHolder.init(context = context)
+        ContextProvider.inject(context = context.applicationContext as Application)
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-
-        val httpInformation = HttpInformation()
-
-        processRequest(request, httpInformation)
-
-        httpInformation.id = insert(httpInformation)
-
+        var httpInformation = buildHttpInformation(request = request)
+        val id = insert(monitorHttp = httpInformation)
+        httpInformation = httpInformation.copy(id = id)
         val response: Response
         try {
             response = chain.proceed(request)
+            try {
+                httpInformation = processResponse(
+                    response = response,
+                    monitorHttp = httpInformation
+                )
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
         } catch (e: Throwable) {
-            httpInformation.error = e.toString()
+            httpInformation = httpInformation.copy(error = e.toString())
             throw e
         } finally {
             try {
-                update(httpInformation)
+                update(monitorHttp = httpInformation)
             } catch (e: Throwable) {
                 e.printStackTrace()
             }
         }
-        try {
-            processResponse(response, httpInformation)
-            update(httpInformation)
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        }
         return response
     }
 
-    private fun processRequest(request: Request, httpInformation: HttpInformation) {
+    private fun buildHttpInformation(request: Request): MonitorHttp {
+        val requestDate = System.currentTimeMillis()
         val requestBody = request.body
-
         val url = request.url.toString()
         val uri = Uri.parse(url)
-
-        httpInformation.url = url
-        httpInformation.host = uri.host ?: ""
-        httpInformation.path =
-            (uri.path ?: "") + if (uri.query.isNullOrBlank()) "" else ("?" + uri.query)
-        httpInformation.scheme = uri.scheme ?: ""
-
-        httpInformation.requestDate = System.currentTimeMillis()
-        httpInformation.method = request.method
-        httpInformation.setRequestHttpHeaders(request.headers)
-
-        httpInformation.requestContentLength = requestBody?.contentLength() ?: 0
-        httpInformation.requestContentType = requestBody?.contentType()?.toString() ?: ""
-
-        if (requestBody != null && ResponseUtils.bodyHasSupportedEncoding(request.headers)) {
-            val buffer = Buffer()
-            requestBody.writeTo(buffer)
-            if (ResponseUtils.isProbablyUtf8(buffer)) {
-                val charset = requestBody.contentType()?.charset(CHARSET_UTF8) ?: CHARSET_UTF8
-                val content = buffer.readString(charset)
-                httpInformation.requestBody = content
-            }
+        val host = uri.host ?: ""
+        val path = (uri.path ?: "") + if (uri.query.isNullOrBlank()) {
+            ""
+        } else {
+            "?" + uri.query
         }
+        val scheme = uri.scheme ?: ""
+        val method = request.method
+        val requestHeaders = request.headers.map {
+            MonitorHttpHeader(it.first, it.second)
+        }
+        val mRequestBody =
+            if (requestBody != null && ResponseUtils.bodyHasSupportedEncoding(request.headers)) {
+                val buffer = Buffer()
+                requestBody.writeTo(buffer)
+                if (ResponseUtils.isProbablyUtf8(buffer)) {
+                    val charset =
+                        requestBody.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+                    val content = buffer.readString(charset)
+                    content
+                } else {
+                    ""
+                }
+            } else {
+                ""
+            }
+        val requestContentLength = requestBody?.contentLength() ?: 0
+        val requestContentType = requestBody?.contentType()?.toString() ?: ""
+        return MonitorHttp(
+            id = 0L,
+            url = url,
+            host = host,
+            path = path,
+            scheme = scheme,
+            requestDate = requestDate,
+            method = method,
+            requestHeaders = requestHeaders,
+            requestContentLength = requestContentLength,
+            requestContentType = requestContentType,
+            requestBody = mRequestBody,
+            protocol = "",
+            responseHeaders = emptyList(),
+            responseBody = "",
+            responseContentType = "",
+            responseContentLength = 0L,
+            responseDate = 0L,
+            responseTlsVersion = "",
+            responseCipherSuite = "",
+            responseMessage = "",
+            error = null
+        )
     }
 
-    private fun processResponse(response: Response, httpInformation: HttpInformation) {
-        httpInformation.requestDate = response.sentRequestAtMillis
-        httpInformation.responseDate = response.receivedResponseAtMillis
-        httpInformation.protocol = response.protocol.toString()
-        httpInformation.responseCode = response.code
-        httpInformation.responseMessage = response.message
-        httpInformation.setRequestHttpHeaders(response.request.headers)
-        httpInformation.setResponseHttpHeaders(response.headers)
-
-        httpInformation.responseTlsVersion = response.handshake?.tlsVersion?.javaName ?: ""
-        httpInformation.responseCipherSuite = response.handshake?.cipherSuite?.javaName ?: ""
-
+    private fun processResponse(
+        response: Response,
+        monitorHttp: MonitorHttp
+    ): MonitorHttp {
+        val requestHeaders = response.request.headers.map {
+            MonitorHttpHeader(it.first, it.second)
+        }
+        val responseHeaders = response.headers.map {
+            MonitorHttpHeader(it.first, it.second)
+        }
         val responseBody = response.body
-
+        val responseContentType: String
+        var responseContentLength = 0L
+        var mResponseBody = "(encoded body omitted)"
         if (responseBody != null) {
-            httpInformation.responseContentType = responseBody.contentType()?.toString() ?: ""
-            httpInformation.responseContentLength = responseBody.contentLength()
+            responseContentType = responseBody.contentType()?.toString() ?: ""
+            responseContentLength = responseBody.contentLength()
             if (response.promisesBody()) {
                 val encodingIsSupported =
                     ResponseUtils.bodyHasSupportedEncoding(response.headers)
                 if (encodingIsSupported) {
                     val buffer = ResponseUtils.getNativeSource(response)
-                    httpInformation.responseContentLength = buffer.size
+                    responseContentLength = buffer.size
                     if (ResponseUtils.isProbablyUtf8(buffer)) {
                         if (responseBody.contentLength() != 0L) {
                             val charset =
-                                responseBody.contentType()?.charset(CHARSET_UTF8)
-                                    ?: CHARSET_UTF8
-                            httpInformation.responseBody = buffer.clone().readString(charset)
-                            return
+                                responseBody.contentType()?.charset(Charsets.UTF_8)
+                                    ?: Charsets.UTF_8
+                            mResponseBody = buffer.clone().readString(charset)
                         }
                     }
                 }
-                httpInformation.responseBody = UnknownEncoding
             }
+        } else {
+            responseContentType = ""
         }
+        return monitorHttp.copy(
+            requestDate = response.sentRequestAtMillis,
+            responseDate = response.receivedResponseAtMillis,
+            protocol = response.protocol.toString(),
+            responseCode = response.code,
+            responseMessage = response.message,
+            responseTlsVersion = response.handshake?.tlsVersion?.javaName ?: "",
+            responseCipherSuite = response.handshake?.cipherSuite?.javaName ?: "",
+            requestHeaders = requestHeaders,
+            responseHeaders = responseHeaders,
+            responseContentType = responseContentType,
+            responseContentLength = responseContentLength,
+            responseBody = mResponseBody
+        )
     }
 
-    private fun insert(httpInformation: HttpInformation): Long {
-        showNotification(httpInformation)
-        return MonitorHttpInformationDatabase.INSTANCE.httpInformationDao.insert(httpInformation)
+    private fun insert(monitorHttp: MonitorHttp): Long {
+        val id = MonitorDatabase.instance.monitorDao.insert(model = monitorHttp)
+        NotificationProvider.show(monitorHttp = monitorHttp.copy(id = id))
+        return id
     }
 
-    private fun update(httpInformation: HttpInformation) {
-        showNotification(httpInformation)
-        MonitorHttpInformationDatabase.INSTANCE.httpInformationDao.update(httpInformation)
-    }
-
-    private fun showNotification(httpInformation: HttpInformation) {
-        NotificationHolder.show(httpInformation)
+    private fun update(monitorHttp: MonitorHttp) {
+        NotificationProvider.show(monitorHttp = monitorHttp)
+        MonitorDatabase.instance.monitorDao.update(model = monitorHttp)
     }
 
 }

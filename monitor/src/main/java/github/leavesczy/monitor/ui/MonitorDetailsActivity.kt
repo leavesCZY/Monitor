@@ -5,9 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -15,8 +13,8 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.adapter.MonitorFragmentAdapter
+import github.leavesczy.monitor.logic.MonitorDetailViewModel
 import github.leavesczy.monitor.utils.FormatUtils
-import github.leavesczy.monitor.viewmodel.MonitorDetailViewModel
 
 /**
  * @Author: leavesCZY
@@ -24,7 +22,7 @@ import github.leavesczy.monitor.viewmodel.MonitorDetailViewModel
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-class MonitorDetailsActivity : AppCompatActivity() {
+internal class MonitorDetailsActivity : AppCompatActivity() {
 
     companion object {
 
@@ -38,52 +36,40 @@ class MonitorDetailsActivity : AppCompatActivity() {
 
     }
 
-    private val tvToolbarTitle by lazy {
-        findViewById<TextView>(R.id.tvToolbarTitle)
-    }
-
-    private val toolbar by lazy {
-        findViewById<Toolbar>(R.id.toolbar)
-    }
-
-    private val tabLayout by lazy {
-        findViewById<TabLayout>(R.id.tabLayout)
-    }
-
-    private val viewPager by lazy {
-        findViewById<ViewPager2>(R.id.viewPager)
-    }
-
-    private val monitorDetailViewModel by lazy {
+    private val monitorDetailViewModel by lazy(mode = LazyThreadSafetyMode.NONE) {
         ViewModelProvider(this, object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return MonitorDetailViewModel(intent.getLongExtra(KEY_ID, 0)) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val id = intent.getLongExtra(KEY_ID, 0)
+                return MonitorDetailViewModel(id = id) as T
             }
-        }).get(MonitorDetailViewModel::class.java).apply {
-            recordLiveData.observe(this@MonitorDetailsActivity, { httpInformation ->
-                tvToolbarTitle.text =
-                    String.format("%s  %s", httpInformation.method, httpInformation.path)
-            })
-        }
+        })[MonitorDetailViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_monitor_details)
         initView()
-        monitorDetailViewModel.queryRecordById()
+        initObserver()
     }
 
     private fun initView() {
-        setSupportActionBar(toolbar)
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val monitorFragmentAdapter = MonitorFragmentAdapter(this)
+        val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         viewPager.adapter = monitorFragmentAdapter
         viewPager.offscreenPageLimit = monitorFragmentAdapter.itemCount
+        val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         val tabLayoutMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = monitorFragmentAdapter.getTitle(position)
+            tab.text = monitorFragmentAdapter.getTitle(position = position)
         }
         tabLayoutMediator.attach()
+    }
+
+    private fun initObserver() {
+        monitorDetailViewModel.recordLiveData.observe(this) {
+            supportActionBar?.title = String.format("%s  %s", it.method, it.path)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -94,11 +80,12 @@ class MonitorDetailsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.share -> {
-                val httpInformation = monitorDetailViewModel.recordLiveData.value
-                if (httpInformation != null) {
-                    share(FormatUtils.getShareText(httpInformation))
+                val monitorHttp = monitorDetailViewModel.recordLiveData.value
+                if (monitorHttp != null) {
+                    share(FormatUtils.getShareText(monitorHttp))
                 }
             }
+
             android.R.id.home -> {
                 finish()
             }
@@ -108,10 +95,10 @@ class MonitorDetailsActivity : AppCompatActivity() {
 
     private fun share(content: String) {
         val sendIntent = Intent()
-        sendIntent.action = Intent.ACTION_SEND
         sendIntent.putExtra(Intent.EXTRA_TEXT, content)
+        sendIntent.action = Intent.ACTION_SEND
         sendIntent.type = "text/plain"
-        startActivity(Intent.createChooser(sendIntent, null))
+        startActivity(Intent.createChooser(sendIntent, getString(R.string.monitor_lib_name)))
     }
 
 }

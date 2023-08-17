@@ -1,26 +1,23 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="github.leavesczy.monitor">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
         <activity
             android:name=".ui.MonitorActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|locale|layoutDirection|uiMode"
             android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:taskAffinity="github.leavesczy.monitor.singleTask"
-            android:theme="@style/MonitorAppTheme" />
+            android:theme="@style/Theme.Monitor" />
         <activity
             android:name=".ui.MonitorDetailsActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation|locale|layoutDirection|uiMode"
             android:exported="false"
             android:launchMode="singleTask"
             android:parentActivityName=".ui.MonitorActivity"
             android:screenOrientation="portrait"
             android:taskAffinity="github.leavesczy.monitor.singleTask"
-            android:theme="@style/MonitorAppTheme" />
-
-        <service
-            android:name=".service.ClearMonitorService"
-            android:exported="false" />
+            android:theme="@style/Theme.Monitor" />
     </application>
 
 </manifest>

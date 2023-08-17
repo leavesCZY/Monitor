@@ -1,8 +1,8 @@
 package github.leavesczy.monitor.utils
 
-import github.leavesczy.monitor.db.HttpHeader
-import github.leavesczy.monitor.db.HttpInformation
-import github.leavesczy.monitor.holder.SerializableHolder
+import github.leavesczy.monitor.db.MonitorHttp
+import github.leavesczy.monitor.db.MonitorHttpHeader
+import github.leavesczy.monitor.provider.JsonProvider
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
@@ -11,7 +11,8 @@ import java.io.IOException
 import java.io.StringWriter
 import java.nio.charset.Charset
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
@@ -59,13 +60,22 @@ internal object FormatUtils {
         return formatByteCount(bytes, true)
     }
 
-    fun formatByteCount(bytes: Long, si: Boolean): String {
+    @Suppress("SameParameterValue")
+    private fun formatByteCount(bytes: Long, si: Boolean): String {
         val unit = if (si) 1000 else 1024
         if (bytes < unit) {
             return "$bytes B"
         }
         val exp = (ln(bytes.toDouble()) / ln(unit.toDouble())).toInt()
-        val pre = (if (si) "kMGTPE" else "KMGTPE")[exp - 1] + if (si) "" else "i"
+        val pre = (if (si) {
+            "kMGTPE"
+        } else {
+            "KMGTPE"
+        })[exp - 1] + if (si) {
+            ""
+        } else {
+            "i"
+        }
         return String.format(
             Locale.US,
             "%.1f %sB",
@@ -74,7 +84,7 @@ internal object FormatUtils {
         )
     }
 
-    fun formatHeaders(httpHeaders: List<HttpHeader>?, withMarkup: Boolean): String {
+    fun formatHeaders(httpHeaders: List<MonitorHttpHeader>?, withMarkup: Boolean): String {
         val out = StringBuilder()
         if (httpHeaders != null) {
             for ((name, value) in httpHeaders) {
@@ -94,12 +104,15 @@ internal object FormatUtils {
             body.isBlank() -> {
                 ""
             }
+
             contentType?.contains("json", true) == true -> {
-                SerializableHolder.setPrettyPrinting(body)
+                JsonProvider.setPrettyPrinting(body)
             }
+
             contentType?.contains("xml", true) == true -> {
                 formatXml(body)
             }
+
             else -> {
                 body
             }
@@ -135,36 +148,36 @@ internal object FormatUtils {
         }
     }
 
-    fun getShareText(httpInformation: HttpInformation): String {
+    fun getShareText(monitorHttp: MonitorHttp): String {
         var text = ""
-        text += "Url: " + httpInformation.url + "\n"
-        text += "Host: " + httpInformation.host + "\n"
-        text += "Path: " + httpInformation.path + "\n"
-        text += "Scheme: " + httpInformation.scheme + "\n"
+        text += "Url: " + monitorHttp.url + "\n"
+        text += "Host: " + monitorHttp.host + "\n"
+        text += "Path: " + monitorHttp.path + "\n"
+        text += "Scheme: " + monitorHttp.scheme + "\n"
         text += "\n"
-        text += "Method: " + httpInformation.method + "\n"
-        text += "Protocol: " + httpInformation.protocol + "\n"
-        text += "Status: " + httpInformation.status.toString() + "\n"
-        text += "Response: " + httpInformation.responseSummaryText + "\n"
-        text += "SSL: " + httpInformation.isSsl + "\n"
-        text += "TlsVersion: " + httpInformation.responseTlsVersion + "\n"
-        text += "CipherSuite: " + httpInformation.responseCipherSuite + "\n"
+        text += "Method: " + monitorHttp.method + "\n"
+        text += "Protocol: " + monitorHttp.protocol + "\n"
+        text += "Status: " + monitorHttp.httpStatus.toString() + "\n"
+        text += "Response: " + monitorHttp.responseSummaryText + "\n"
+        text += "SSL: " + monitorHttp.isSsl + "\n"
+        text += "TlsVersion: " + monitorHttp.responseTlsVersion + "\n"
+        text += "CipherSuite: " + monitorHttp.responseCipherSuite + "\n"
         text += "\n"
-        text += "Request Time: " + getDateFormatLong(httpInformation.requestDate) + "\n"
-        text += "Response Time: " + getDateFormatLong(httpInformation.responseDate) + "\n"
-        text += "Duration: " + httpInformation.durationFormat + "\n"
+        text += "Request Time: " + getDateFormatLong(monitorHttp.requestDate) + "\n"
+        text += "Response Time: " + getDateFormatLong(monitorHttp.responseDate) + "\n"
+        text += "Duration: " + monitorHttp.durationFormat + "\n"
         text += "\n"
-        text += "Request Size: " + formatBytes(httpInformation.requestContentLength) + "\n"
-        text += "Response Size: " + formatBytes(httpInformation.responseContentLength) + "\n"
-        text += "Total Size: " + httpInformation.totalSizeFormat + "\n"
+        text += "Request Size: " + formatBytes(monitorHttp.requestContentLength) + "\n"
+        text += "Response Size: " + formatBytes(monitorHttp.responseContentLength) + "\n"
+        text += "Total Size: " + monitorHttp.totalSizeFormat + "\n"
         text += "\n"
         text += "---------- Request  ----------\n"
-        text += httpInformation.getRequestHeadersString(false) + "\n"
-        text += httpInformation.requestBodyFormat + "\n"
+        text += monitorHttp.getRequestHeadersString(false) + "\n"
+        text += monitorHttp.requestBodyFormat + "\n"
         text += "\n"
         text += "---------- Response  ----------\n"
-        text += httpInformation.getResponseHeadersString(false) + "\n"
-        text += httpInformation.responseBodyFormat + "\n"
+        text += monitorHttp.getResponseHeadersString(false) + "\n"
+        text += monitorHttp.responseBodyFormat + "\n"
         return text
     }
 

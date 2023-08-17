@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Monitor" parent="Theme.Monitor.Base">
+        <item name="android:statusBarColor">@color/monitor_top_bar</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+</resources>

@@ -25,12 +25,15 @@ internal class MonitorFragmentAdapter(fragmentActivity: FragmentActivity) :
             0 -> {
                 MonitorOverviewFragment.newInstance()
             }
+
             1 -> {
                 MonitorRequestFragment.newInstance()
             }
+
             2 -> {
                 MonitorResponseFragment.newInstance()
             }
+
             else -> {
                 throw IllegalArgumentException()
             }
@@ -42,12 +45,15 @@ internal class MonitorFragmentAdapter(fragmentActivity: FragmentActivity) :
             0 -> {
                 "Overview"
             }
+
             1 -> {
                 "Request"
             }
+
             2 -> {
                 "Response"
             }
+
             else -> {
                 throw IllegalArgumentException()
             }

@@ -3,23 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:gravity="center"
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/btnDoApiServiceFirst"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="ApiServiceFirst"
-        android:textAllCaps="false" />
+        android:layout_margin="20dp"
+        android:text="发起网络请求"
+        android:textAllCaps="false"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/btnDoApiServiceSecond"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="ApiServiceSecond"
-        android:textAllCaps="false" />
+        android:layout_margin="20dp"
+        android:text="发起网络请求"
+        android:textAllCaps="false"
+        tools:ignore="HardcodedText" />
 
 </LinearLayout>

@@ -1,33 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/monitor_rootBg">
+    android:background="@android:color/white">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:background="@color/monitor_top_bar">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-            <TextView
-                android:id="@+id/tvToolbarTitle"
-                style="@style/monitor.TextAppearance.TransactionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Title" />
-
-        </androidx.appcompat.widget.Toolbar>
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
@@ -35,7 +24,8 @@
             android:layout_height="wrap_content"
             app:tabIndicatorColor="@android:color/white"
             app:tabSelectedTextColor="@android:color/white"
-            app:tabTextAppearance="@style/monitor.TextAppearance.TabLayoutTextStyle" />
+            app:tabTextAppearance="@style/Monitor.TextAppearance.TabLayoutTextStyle"
+            app:tabTextColor="@android:color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
