@@ -47,7 +47,7 @@ internal object ResponseUtils {
         val source = response.body!!.source()
         source.request(Long.MAX_VALUE)
         var buffer = source.buffer
-        if (bodyGzipped(response.headers)) {
+        if (bodyGzipped(headers = response.headers)) {
             GzipSource(buffer.clone()).use { gzippedResponseBody ->
                 buffer = Buffer()
                 buffer.writeAll(gzippedResponseBody)

@@ -16,6 +16,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 /**
  * @Author: leavesCZY
@@ -26,31 +27,36 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MainActivity : AppCompatActivity() {
 
     private val okHttpClient by lazy(mode = LazyThreadSafetyMode.NONE) {
-        OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
+        OkHttpClient.Builder().apply {
+            callTimeout(30, TimeUnit.SECONDS)
+            connectTimeout(30, TimeUnit.SECONDS)
+            readTimeout(30, TimeUnit.SECONDS)
+            writeTimeout(30, TimeUnit.SECONDS)
+            retryOnConnectionFailure(true)
+            addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
-            .addInterceptor(FilterInterceptor())
-            .addNetworkInterceptor(MonitorInterceptor(context = application))
-            .build()
+            addInterceptor(FilterInterceptor())
+            addNetworkInterceptor(MonitorInterceptor(context = application))
+        }.build()
     }
 
-    private val apiServiceFirst by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val apiServiceMock by lazy(mode = LazyThreadSafetyMode.NONE) {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://httpbin.org")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-        retrofit.create(ApiServiceFirst::class.java)
+        retrofit.create(ApiServiceMock::class.java)
     }
 
-    private val apiServiceSecond by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val apiServiceWeather by lazy(mode = LazyThreadSafetyMode.NONE) {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://restapi.amap.com/v3/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-        retrofit.create(ApiServiceSecond::class.java)
+        retrofit.create(ApiServiceWeather::class.java)
     }
 
     private val requestNotificationPermissionLauncher = registerForActivityResult(
@@ -67,13 +73,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        findViewById<View>(R.id.btnDoApiServiceFirst).setOnClickListener {
+        findViewById<View>(R.id.btnNetworkRequest).setOnClickListener {
             showToast("已发起请求，请查看消息通知栏")
-            doApiServiceFirst()
-        }
-        findViewById<View>(R.id.btnDoApiServiceSecond).setOnClickListener {
-            showToast("已发起请求，请查看消息通知栏")
-            doApiServiceSecond()
+            networkRequest()
         }
     }
 
@@ -95,58 +97,35 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-    private fun doApiServiceFirst() {
+    private fun networkRequest() {
         val callback = object : Callback<Void> {
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                t.printStackTrace()
+            override fun onFailure(call: Call<Void>, throwable: Throwable) {
+                throwable.printStackTrace()
             }
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
 
             }
         }
-        apiServiceFirst.get().enqueue(callback)
-        apiServiceFirst.post(Data("posted")).enqueue(callback)
-        apiServiceFirst.patch(Data("patched")).enqueue(callback)
-        apiServiceFirst.put(Data("put")).enqueue(callback)
-        apiServiceFirst.delete().enqueue(callback)
-        apiServiceFirst.status(201).enqueue(callback)
-        apiServiceFirst.status(401).enqueue(callback)
-        apiServiceFirst.status(500).enqueue(callback)
-        apiServiceFirst.delay(9).enqueue(callback)
-        apiServiceFirst.delay(15).enqueue(callback)
-        apiServiceFirst.redirectTo("https://http2.akamai.com").enqueue(callback)
-        apiServiceFirst.redirect(3).enqueue(callback)
-        apiServiceFirst.redirectRelative(2).enqueue(callback)
-        apiServiceFirst.redirectAbsolute(4).enqueue(callback)
-        apiServiceFirst.stream(500).enqueue(callback)
-        apiServiceFirst.streamBytes(2048).enqueue(callback)
-        apiServiceFirst.image("image/png").enqueue(callback)
-        apiServiceFirst.gzip().enqueue(callback)
-        apiServiceFirst.xml().enqueue(callback)
-        apiServiceFirst.utf8().enqueue(callback)
-        apiServiceFirst.deflate().enqueue(callback)
-        apiServiceFirst.cookieSet("v").enqueue(callback)
-        apiServiceFirst.basicAuth("me", "pass").enqueue(callback)
-        apiServiceFirst.drip(512, 5, 1, 200).enqueue(callback)
-        apiServiceFirst.deny().enqueue(callback)
-        apiServiceFirst.cache("Mon").enqueue(callback)
-        apiServiceFirst.cache(30).enqueue(callback)
-    }
-
-    private fun doApiServiceSecond() {
-        val callback = object : Callback<String> {
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                t.printStackTrace()
-            }
-
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-
-            }
-        }
-        apiServiceSecond.getProvince().enqueue(callback)
-        apiServiceSecond.getCity("440000").enqueue(callback)
-        apiServiceSecond.getCounty("440100").enqueue(callback)
+        apiServiceMock.get().enqueue(callback)
+        apiServiceMock.post(body = Data(thing = "posted")).enqueue(callback)
+        apiServiceMock.patch(body = Data(thing = "patched")).enqueue(callback)
+        apiServiceMock.put(body = Data(thing = "put")).enqueue(callback)
+        apiServiceMock.delete().enqueue(callback)
+        apiServiceMock.status(code = 200).enqueue(callback)
+        apiServiceMock.status(code = 201).enqueue(callback)
+        apiServiceMock.delay(seconds = 1).enqueue(callback)
+        apiServiceMock.delay(seconds = 2).enqueue(callback)
+        apiServiceMock.stream(lines = 200).enqueue(callback)
+        apiServiceMock.streamBytes(bytes = 2048).enqueue(callback)
+        apiServiceMock.image("image/png").enqueue(callback)
+        apiServiceMock.gzip().enqueue(callback)
+        apiServiceMock.xml().enqueue(callback)
+        apiServiceMock.utf8().enqueue(callback)
+        apiServiceMock.deflate().enqueue(callback)
+        apiServiceWeather.getProvince().enqueue(callback)
+        apiServiceWeather.getCity("440000").enqueue(callback)
+        apiServiceWeather.getCounty("440100").enqueue(callback)
     }
 
 }

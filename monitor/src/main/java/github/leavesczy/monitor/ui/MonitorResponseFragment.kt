@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.logic.MonitorDetailViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
@@ -45,7 +46,7 @@ internal class MonitorResponseFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_monitor_response, container, false)
+        val view = inflater.inflate(R.layout.monitor_fragment_monitor_response, container, false)
         tvHeaders = view.findViewById(R.id.tvHeaders)
         tvBody = view.findViewById(R.id.tvBody)
         return view
@@ -55,16 +56,18 @@ internal class MonitorResponseFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-                monitorDetailViewModel.httpRecordFlow.collectLatest {
-                    val headersString = it.getResponseHeadersString(true)
-                    if (headersString.isBlank()) {
-                        tvHeaders.visibility = View.GONE
-                    } else {
-                        tvHeaders.visibility = View.VISIBLE
-                        tvHeaders.text = Html.fromHtml(headersString)
+                monitorDetailViewModel.httpRecordFlow
+                    .distinctUntilChanged()
+                    .collectLatest {
+                        val headersString = it.getResponseHeadersString(true)
+                        if (headersString.isBlank()) {
+                            tvHeaders.visibility = View.GONE
+                        } else {
+                            tvHeaders.visibility = View.VISIBLE
+                            tvHeaders.text = Html.fromHtml(headersString)
+                        }
+                        tvBody.text = it.responseBodyFormat
                     }
-                    tvBody.text = it.responseBodyFormat
-                }
             }
         }
     }

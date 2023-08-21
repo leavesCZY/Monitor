@@ -66,7 +66,7 @@ internal object NotificationProvider {
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentIntent(getContentIntent(context = context))
                 .setOnlyAlertOnce(true)
-                .setSmallIcon(R.drawable.icon_monitor_launcher)
+                .setSmallIcon(R.drawable.monitor_icon_launcher)
                 .setContentTitle(NOTIFICATION_TITLE)
                 .setAutoCancel(false)
             val inboxStyle = NotificationCompat.InboxStyle()

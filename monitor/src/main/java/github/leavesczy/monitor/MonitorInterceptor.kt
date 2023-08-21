@@ -2,7 +2,6 @@ package github.leavesczy.monitor
 
 import android.app.Application
 import android.content.Context
-import android.net.Uri
 import github.leavesczy.monitor.db.MonitorDatabase
 import github.leavesczy.monitor.db.MonitorHttp
 import github.leavesczy.monitor.db.MonitorHttpHeader
@@ -32,43 +31,43 @@ class MonitorInterceptor(context: Context) : Interceptor {
         var monitorHttp = buildMonitorHttp(request = request)
         monitorHttp = insert(monitorHttp = monitorHttp)
         NotificationProvider.show(monitorHttp = monitorHttp)
-        val response: Response
+        var response: Response?
+        var error: Throwable?
         try {
-            response = chain.proceed(request)
-            try {
-                monitorHttp = processResponse(
+            response = chain.proceed(request = request)
+            error = null
+        } catch (throwable: Throwable) {
+            response = null
+            error = throwable
+        }
+        try {
+            monitorHttp = if (response != null) {
+                processResponse(
                     response = response,
                     monitorHttp = monitorHttp
                 )
-            } catch (e: Throwable) {
-                e.printStackTrace()
+            } else {
+                monitorHttp.copy(error = error.toString())
             }
-        } catch (e: Throwable) {
-            monitorHttp = monitorHttp.copy(error = e.toString())
-            throw e
-        } finally {
-            try {
-                update(monitorHttp = monitorHttp)
-                NotificationProvider.show(monitorHttp = monitorHttp)
-            } catch (e: Throwable) {
-                e.printStackTrace()
-            }
+            update(monitorHttp = monitorHttp)
+            NotificationProvider.show(monitorHttp = monitorHttp)
+        } catch (_: Throwable) {
+
         }
-        return response
+        if (error != null) {
+            throw error
+        }
+        return response!!
     }
 
     private fun buildMonitorHttp(request: Request): MonitorHttp {
         val requestDate = System.currentTimeMillis()
         val requestBody = request.body
-        val url = request.url.toString()
-        val uri = Uri.parse(url)
-        val host = uri.host ?: ""
-        val path = (uri.path ?: "") + if (uri.query.isNullOrBlank()) {
-            ""
-        } else {
-            "?" + uri.query
-        }
-        val scheme = uri.scheme ?: ""
+        val url = request.url
+        val scheme = url.scheme
+        val host = url.host
+        val path = url.encodedPath
+        val query = url.encodedQuery ?: ""
         val method = request.method
         val requestHeaders = request.headers.map {
             MonitorHttpHeader(name = it.first, value = it.second)
@@ -80,8 +79,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
                 if (ResponseUtils.isProbablyUtf8(buffer)) {
                     val charset =
                         requestBody.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
-                    val content = buffer.readString(charset)
-                    content
+                    buffer.readString(charset)
                 } else {
                     ""
                 }
@@ -92,10 +90,11 @@ class MonitorInterceptor(context: Context) : Interceptor {
         val requestContentType = requestBody?.contentType()?.toString() ?: ""
         return MonitorHttp(
             id = 0L,
-            url = url,
+            url = url.toString(),
+            scheme = scheme,
             host = host,
             path = path,
-            scheme = scheme,
+            query = query,
             requestDate = requestDate,
             method = method,
             requestHeaders = requestHeaders,

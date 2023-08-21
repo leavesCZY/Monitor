@@ -1,12 +1,8 @@
 package github.leavesczy.monitor.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -21,78 +17,57 @@ import github.leavesczy.monitor.db.MonitorHttpStatus
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-internal class MonitorAdapter(private val context: Context) :
-    RecyclerView.Adapter<MonitorViewHolder>() {
-
-    private val colorSuccess = getColor(R.color.monitor_status_success)
-
-    private val colorRequested = getColor(R.color.monitor_status_requested)
-
-    private val colorError = getColor(R.color.monitor_status_error)
-
-    private val color300 = getColor(R.color.monitor_status_300)
-
-    private val color400 = getColor(R.color.monitor_status_400)
-
-    private val color500 = getColor(R.color.monitor_status_500)
+internal class MonitorAdapter : RecyclerView.Adapter<MonitorViewHolder>() {
 
     private val asyncListDiffer = AsyncListDiffer(this, MonitorDiffUtilItemCallback())
 
     var clickListener: MonitorItemClickListener? = null
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MonitorViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): MonitorViewHolder {
         return MonitorViewHolder(viewGroup)
     }
 
     override fun onBindViewHolder(holder: MonitorViewHolder, position: Int) {
-        val httpInformation = asyncListDiffer.currentList[position]
-        holder.tvId.text = httpInformation.id.toString()
-        holder.tvPath.text = String.format("%s  %s", httpInformation.method, httpInformation.path)
-        holder.tvHost.text = httpInformation.host
-        holder.tvRequestDate.text = httpInformation.requestDateFormatShort
-        holder.ivSsl.visibility = if (httpInformation.isSsl) View.VISIBLE else View.GONE
-        holder.tvCode.text = httpInformation.responseCodeFormat
-        holder.tvDuration.text = httpInformation.durationFormat
-        holder.tvSize.text = httpInformation.totalSizeFormat
-        setStatusColor(holder, httpInformation)
-        holder.view.setOnClickListener {
-            clickListener?.onClick(holder.adapterPosition, httpInformation)
+        val monitorHttp = asyncListDiffer.currentList[position]
+        holder.tvHttpCode.text = monitorHttp.responseCodeFormat
+        holder.tvHttpPath.text = monitorHttp.pathWithQuery
+        holder.tvMonitorId.text = monitorHttp.id.toString()
+        holder.tvUrl.text = String.format("%s://%s", monitorHttp.scheme, monitorHttp.host)
+        holder.tvRequestTime.text = monitorHttp.requestDateMDHMS
+        holder.tvRequestDuration.text = monitorHttp.requestDurationFormat
+        holder.tvTotalSize.text = monitorHttp.totalSizeFormat
+        setStatusColor(holder, monitorHttp)
+        holder.itemView.setOnClickListener {
+            clickListener?.onClick(holder.adapterPosition, monitorHttp)
         }
     }
 
     private fun setStatusColor(holder: MonitorViewHolder, monitorHttp: MonitorHttp) {
-        val color = when {
-            monitorHttp.httpStatus == MonitorHttpStatus.Failed -> {
-                colorError
+        val context = holder.itemView.context
+        val color = when (monitorHttp.httpStatus) {
+            MonitorHttpStatus.Requesting -> {
+                ContextCompat.getColor(context, R.color.monitor_http_status_requesting)
             }
 
-            monitorHttp.httpStatus == MonitorHttpStatus.Requested -> {
-                colorRequested
+            MonitorHttpStatus.Complete -> {
+                if (monitorHttp.responseCode == 200) {
+                    ContextCompat.getColor(context, R.color.monitor_http_status_successful)
+                } else {
+                    ContextCompat.getColor(context, R.color.monitor_http_status_unsuccessful)
+                }
             }
 
-            monitorHttp.responseCode >= 500 -> {
-                color500
-            }
-
-            monitorHttp.responseCode >= 400 -> {
-                color400
-            }
-
-            monitorHttp.responseCode >= 300 -> {
-                color300
-            }
-
-            else -> {
-                colorSuccess
+            MonitorHttpStatus.Failed -> {
+                ContextCompat.getColor(context, R.color.monitor_http_status_unsuccessful)
             }
         }
-        holder.tvCode.setTextColor(color)
-        holder.tvPath.setTextColor(color)
-        holder.tvId.setTextColor(color)
-        holder.tvHost.setTextColor(color)
-        holder.tvRequestDate.setTextColor(color)
-        holder.tvDuration.setTextColor(color)
-        holder.tvSize.setTextColor(color)
+        holder.tvHttpCode.setTextColor(color)
+        holder.tvHttpPath.setTextColor(color)
+        holder.tvMonitorId.setTextColor(color)
+        holder.tvUrl.setTextColor(color)
+        holder.tvRequestTime.setTextColor(color)
+        holder.tvRequestDuration.setTextColor(color)
+        holder.tvTotalSize.setTextColor(color)
     }
 
     override fun getItemCount(): Int {
@@ -101,10 +76,6 @@ internal class MonitorAdapter(private val context: Context) :
 
     fun setData(dataList: List<MonitorHttp>) {
         asyncListDiffer.submitList(dataList)
-    }
-
-    private fun getColor(@ColorRes id: Int): Int {
-        return ContextCompat.getColor(context, id)
     }
 
 }
@@ -121,27 +92,22 @@ private class MonitorDiffUtilItemCallback : DiffUtil.ItemCallback<MonitorHttp>()
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(
-        oldItem: MonitorHttp,
-        newItem: MonitorHttp
-    ): Boolean {
+    override fun areContentsTheSame(oldItem: MonitorHttp, newItem: MonitorHttp): Boolean {
         return oldItem == newItem
     }
 
 }
 
 internal class MonitorViewHolder(viewGroup: ViewGroup) : RecyclerView.ViewHolder(
-    LayoutInflater.from(viewGroup.context).inflate(R.layout.item_monitor, viewGroup, false)
+    LayoutInflater.from(viewGroup.context).inflate(R.layout.monitor_item_monitor, viewGroup, false)
 ) {
 
-    val view: View = itemView
-    val tvId: TextView = view.findViewById(R.id.tvId)
-    val tvCode: TextView = view.findViewById(R.id.tvCode)
-    val tvPath: TextView = view.findViewById(R.id.tvPath)
-    val tvHost: TextView = view.findViewById(R.id.tvHost)
-    val ivSsl: ImageView = view.findViewById(R.id.ivSsl)
-    val tvRequestDate: TextView = view.findViewById(R.id.tvRequestDate)
-    val tvDuration: TextView = view.findViewById(R.id.tvDuration)
-    val tvSize: TextView = view.findViewById(R.id.tvSize)
+    val tvMonitorId: TextView = itemView.findViewById(R.id.tvMonitorId)
+    val tvHttpCode: TextView = itemView.findViewById(R.id.tvHttpCode)
+    val tvHttpPath: TextView = itemView.findViewById(R.id.tvHttpPath)
+    val tvUrl: TextView = itemView.findViewById(R.id.tvUrl)
+    val tvRequestTime: TextView = itemView.findViewById(R.id.tvRequestTime)
+    val tvRequestDuration: TextView = itemView.findViewById(R.id.tvRequestDuration)
+    val tvTotalSize: TextView = itemView.findViewById(R.id.tvRequestSize)
 
 }

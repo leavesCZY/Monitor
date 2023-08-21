@@ -7,4 +7,5 @@ import androidx.annotation.Keep
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-data class Data(@Keep val thing: String)
+@Keep
+data class Data(val thing: String)

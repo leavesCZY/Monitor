@@ -16,6 +16,7 @@ import github.leavesczy.monitor.db.MonitorDatabase
 import github.leavesczy.monitor.db.MonitorHttp
 import github.leavesczy.monitor.provider.NotificationProvider
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
@@ -30,13 +31,11 @@ internal class MonitorActivity : AppCompatActivity() {
         MonitorDatabase.instance.monitorDao.queryRecord(limit = 400)
     }
 
-    private val monitorAdapter by lazy(mode = LazyThreadSafetyMode.NONE) {
-        MonitorAdapter(context = this)
-    }
+    private val monitorAdapter = MonitorAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_monitor)
+        setContentView(R.layout.monitor_activity_monitor)
         initView()
         initObserver()
     }
@@ -45,14 +44,14 @@ internal class MonitorActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            setTitle(R.string.monitor_lib_name)
+            setTitle(R.string.monitor_library_name)
         }
         monitorAdapter.clickListener = object : MonitorItemClickListener {
             override fun onClick(position: Int, model: MonitorHttp) {
                 MonitorDetailsActivity.navTo(this@MonitorActivity, model.id)
             }
         }
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        val recyclerView = findViewById<RecyclerView>(R.id.rvMonitorList)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = monitorAdapter
     }
@@ -60,15 +59,17 @@ internal class MonitorActivity : AppCompatActivity() {
     private fun initObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-                httpRecordFlow.collectLatest {
-                    monitorAdapter.setData(it)
-                }
+                httpRecordFlow
+                    .distinctUntilChanged()
+                    .collectLatest {
+                        monitorAdapter.setData(it)
+                    }
             }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_monitor_home, menu)
+        menuInflater.inflate(R.menu.monitor_menu_home, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

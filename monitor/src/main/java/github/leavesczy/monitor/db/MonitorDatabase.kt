@@ -15,7 +15,7 @@ import github.leavesczy.monitor.provider.ContextProvider
  */
 @Database(
     entities = [MonitorHttp::class],
-    version = 21,
+    version = 22,
     exportSchema = true
 )
 @TypeConverters(MonitorTypeConverter::class)
@@ -25,7 +25,7 @@ internal abstract class MonitorDatabase : RoomDatabase() {
 
         private const val DB_NAME = "Monitor"
 
-        internal const val MonitorTableName = "MonitorHttp"
+        const val MonitorTableName = "MonitorHttp"
 
         private var monitorDatabase: MonitorDatabase? = null
 

@@ -12,12 +12,16 @@ class FilterInterceptor : Interceptor {
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-        val originalRequest = chain.request()
-        val httpBuilder = originalRequest.url.newBuilder()
-        httpBuilder.addEncodedQueryParameter("key", "fb0a1b0d89f3b93adca639f0a29dbf23")
-        val requestBuilder = originalRequest.newBuilder()
-            .url(httpBuilder.build())
-        return chain.proceed(requestBuilder.build())
+        val request = chain.request()
+        val url = request.url
+        if (url.host == "restapi.amap.com") {
+            val httpBuilder = url.newBuilder()
+            httpBuilder.addEncodedQueryParameter("key", "fb0a1b0d89f3b93adca639f0a29dbf23")
+            val requestBuilder = request.newBuilder()
+                .url(httpBuilder.build())
+            return chain.proceed(requestBuilder.build())
+        }
+        return chain.proceed(request)
     }
 
 }

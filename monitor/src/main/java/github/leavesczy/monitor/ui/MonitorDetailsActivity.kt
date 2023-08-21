@@ -20,6 +20,7 @@ import github.leavesczy.monitor.db.MonitorHttp
 import github.leavesczy.monitor.logic.MonitorDetailViewModel
 import github.leavesczy.monitor.utils.FormatUtils
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
  */
 internal class MonitorDetailsActivity : AppCompatActivity() {
 
-    companion object {
+    internal companion object {
 
         private const val KEY_ID = "keyId"
 
@@ -55,7 +56,7 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_monitor_details)
+        setContentView(R.layout.monitor_activity_monitor_details)
         initView()
         initObserver()
     }
@@ -77,16 +78,19 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
     private fun initObserver() {
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-                monitorDetailViewModel.httpRecordFlow.collectLatest {
-                    monitorHttp = it
-                    supportActionBar?.title = String.format("%s  %s", it.method, it.path)
-                }
+                monitorDetailViewModel.httpRecordFlow
+                    .distinctUntilChanged()
+                    .collectLatest {
+                        monitorHttp = it
+                        supportActionBar?.title =
+                            String.format("%s  %s", it.method, it.pathWithQuery)
+                    }
             }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_monitor_share, menu)
+        menuInflater.inflate(R.menu.monitor_menu_share, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -111,7 +115,7 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
         sendIntent.putExtra(Intent.EXTRA_TEXT, content)
         sendIntent.action = Intent.ACTION_SEND
         sendIntent.type = "text/plain"
-        startActivity(Intent.createChooser(sendIntent, getString(R.string.monitor_lib_name)))
+        startActivity(Intent.createChooser(sendIntent, getString(R.string.monitor_library_name)))
     }
 
 }

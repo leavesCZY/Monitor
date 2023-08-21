@@ -17,17 +17,18 @@ import retrofit2.http.Query
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-interface ApiServiceFirst {
+interface ApiServiceMock {
 
     @GET("/get")
+    @Headers("header:get")
     fun get(): Call<Void>
 
     @POST("/post")
-    @Headers("HeaderKey: HeaderValue")
+    @Headers("header:post")
     fun post(@Body body: Data): Call<Void>
 
     @PATCH("/patch")
-    @Headers("HeaderKey: HeaderValue")
+    @Headers("header:patch")
     fun patch(@Body body: Data): Call<Void>
 
     @PUT("/put")
@@ -48,18 +49,6 @@ interface ApiServiceFirst {
     @GET("/delay/{seconds}")
     fun delay(@Path("seconds") seconds: Int): Call<Void>
 
-    @GET("/redirect-to")
-    fun redirectTo(@Query("url") url: String): Call<Void>
-
-    @GET("/redirect/{times}")
-    fun redirect(@Path("times") times: Int): Call<Void>
-
-    @GET("/relative-redirect/{times}")
-    fun redirectRelative(@Path("times") times: Int): Call<Void>
-
-    @GET("/absolute-redirect/{times}")
-    fun redirectAbsolute(@Path("times") times: Int): Call<Void>
-
     @GET("/image")
     fun image(@Header("Accept") accept: String): Call<Void>
 
@@ -75,41 +64,18 @@ interface ApiServiceFirst {
     @GET("/deflate")
     fun deflate(): Call<Void>
 
-    @GET("/cookies/set")
-    fun cookieSet(@Query("k1") value: String): Call<Void>
-
-    @GET("/basic-auth/{user}/{passwd}")
-    fun basicAuth(@Path("user") user: String, @Path("passwd") passwd: String): Call<Void>
-
-    @GET("/drip")
-    fun drip(
-        @Query("numbytes") bytes: Int,
-        @Query("duration") seconds: Int,
-        @Query("delay") delay: Int,
-        @Query("tv_code") code: Int
-    ): Call<Void>
-
-    @GET("/deny")
-    fun deny(): Call<Void>
-
-    @GET("/cache")
-    fun cache(@Header("If-Modified-Since") ifModifiedSince: String): Call<Void>
-
-    @GET("/cache/{seconds}")
-    fun cache(@Path("seconds") seconds: Int): Call<Void>
-
 }
 
-interface ApiServiceSecond {
+interface ApiServiceWeather {
 
     @GET("config/district")
     @Headers("HeaderKey: HeaderValue")
-    fun getProvince(): Call<String>
+    fun getProvince(): Call<Void>
 
     @GET("config/district")
-    fun getCity(@Query("keywords") keywords: String): Call<String>
+    fun getCity(@Query("keywords") keywords: String): Call<Void>
 
     @GET("config/district")
-    fun getCounty(@Query("keywords") keywords: String): Call<String>
+    fun getCounty(@Query("keywords") keywords: String): Call<Void>
 
 }

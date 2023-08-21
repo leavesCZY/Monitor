@@ -14,7 +14,7 @@ import github.leavesczy.monitor.utils.FormatUtils
 internal data class MonitorHttpHeader(val name: String, val value: String)
 
 internal enum class MonitorHttpStatus {
-    Requested,
+    Requesting,
     Complete,
     Failed
 }
@@ -26,12 +26,14 @@ internal data class MonitorHttp(
     val id: Long,
     @ColumnInfo(name = "url")
     val url: String,
+    @ColumnInfo(name = "scheme")
+    val scheme: String,
     @ColumnInfo(name = "host")
     val host: String,
     @ColumnInfo(name = "path")
     val path: String,
-    @ColumnInfo(name = "scheme")
-    val scheme: String,
+    @ColumnInfo(name = "query")
+    val query: String,
     @ColumnInfo(name = "protocol")
     val protocol: String,
     @ColumnInfo(name = "method")
@@ -74,121 +76,109 @@ internal data class MonitorHttp(
 
     }
 
-    val isSsl: Boolean
-        get() = "https".equals(scheme, ignoreCase = true)
-
-    val httpStatus: MonitorHttpStatus
-        get() = when {
+    val httpStatus by lazy(mode = LazyThreadSafetyMode.NONE) {
+        when {
             error != null -> {
                 MonitorHttpStatus.Failed
             }
 
             responseCode == DEFAULT_RESPONSE_CODE -> {
-                MonitorHttpStatus.Requested
+                MonitorHttpStatus.Requesting
             }
 
             else -> {
                 MonitorHttpStatus.Complete
             }
         }
+    }
 
-    val notificationText: String
-        get() {
-            return when (httpStatus) {
-                MonitorHttpStatus.Failed -> {
-                    "!!!$path"
-                }
+    val notificationText by lazy(mode = LazyThreadSafetyMode.NONE) {
+        when (httpStatus) {
+            MonitorHttpStatus.Requesting -> {
+                "...$pathWithQuery"
+            }
 
-                MonitorHttpStatus.Requested -> {
-                    "...$path"
-                }
+            MonitorHttpStatus.Complete -> {
+                "$responseCode $pathWithQuery"
+            }
 
-                else -> {
-                    "$responseCode $path"
-                }
+            MonitorHttpStatus.Failed -> {
+                "!!!$pathWithQuery"
             }
         }
+    }
 
-    val responseSummaryText: String
-        get() {
-            return when (httpStatus) {
-                MonitorHttpStatus.Failed -> {
-                    error ?: ""
-                }
+    val responseSummaryText by lazy(mode = LazyThreadSafetyMode.NONE) {
+        when (httpStatus) {
+            MonitorHttpStatus.Requesting -> {
+                ""
+            }
 
-                MonitorHttpStatus.Requested -> {
-                    ""
-                }
+            MonitorHttpStatus.Complete -> {
+                "$responseCode $responseMessage"
+            }
 
-                else -> {
-                    "$responseCode $responseMessage"
-                }
+            MonitorHttpStatus.Failed -> {
+                error ?: ""
             }
         }
+    }
 
-    val requestBodyFormat: String
-        get() = FormatUtils.formatBody(requestBody, requestContentType)
+    val pathWithQuery by lazy(mode = LazyThreadSafetyMode.NONE) {
+        if (query.isBlank()) {
+            path
+        } else {
+            String.format("%s?%s", path, query)
+        }
+    }
 
-    val responseBodyFormat: String
-        get() = FormatUtils.formatBody(responseBody, responseContentType)
+    val requestBodyFormat by lazy(mode = LazyThreadSafetyMode.NONE) {
+        FormatUtils.formatBody(requestBody, requestContentType)
+    }
 
-    val responseCodeFormat: String
-        get() {
-            return when (httpStatus) {
-                MonitorHttpStatus.Requested -> {
-                    "..."
-                }
+    val responseBodyFormat by lazy(mode = LazyThreadSafetyMode.NONE) {
+        FormatUtils.formatBody(responseBody, responseContentType)
+    }
 
-                MonitorHttpStatus.Complete -> {
-                    responseCode.toString()
-                }
+    val responseCodeFormat by lazy(mode = LazyThreadSafetyMode.NONE) {
+        when (httpStatus) {
+            MonitorHttpStatus.Requesting -> {
+                "..."
+            }
 
-                MonitorHttpStatus.Failed -> {
-                    "!!!"
-                }
+            MonitorHttpStatus.Complete -> {
+                responseCode.toString()
+            }
+
+            MonitorHttpStatus.Failed -> {
+                "!!!"
             }
         }
+    }
 
-    val requestDateFormatLong: String
-        get() = FormatUtils.getDateFormatLong(requestDate)
+    val requestDateMDHMS by lazy(mode = LazyThreadSafetyMode.NONE) {
+        FormatUtils.getDateMDHMS(date = requestDate)
+    }
 
-    val requestDateFormatShort: String
-        get() = FormatUtils.getDateFormatShort(requestDate)
+    val requestDateYMDHMSS by lazy(mode = LazyThreadSafetyMode.NONE) {
+        FormatUtils.getDateYMDHMSS(date = requestDate)
+    }
 
-    val responseDateFormatLong: String
-        get() = FormatUtils.getDateFormatLong(responseDate)
+    val responseDateYMDHMSS by lazy(mode = LazyThreadSafetyMode.NONE) {
+        FormatUtils.getDateYMDHMSS(date = responseDate)
+    }
 
-    val durationFormat: String
-        get() {
-            val request = requestDate
-            val response = responseDate
-            if (request <= 0 || response <= 0) {
-                return ""
-            }
-            return when (httpStatus) {
-                MonitorHttpStatus.Requested -> {
-                    ""
-                }
-
-                MonitorHttpStatus.Complete -> {
-                    "${response - request} ms"
-                }
-
-                MonitorHttpStatus.Failed -> {
-                    ""
-                }
-            }
-        }
-
-    val totalSizeFormat: String
-        get() {
-            return when (httpStatus) {
-                MonitorHttpStatus.Requested -> {
+    val requestDurationFormat by lazy(mode = LazyThreadSafetyMode.NONE) {
+        if (requestDate <= 0 || responseDate <= 0) {
+            ""
+        } else {
+            when (httpStatus) {
+                MonitorHttpStatus.Requesting -> {
                     ""
                 }
 
                 MonitorHttpStatus.Complete -> {
-                    FormatUtils.formatBytes(requestContentLength + responseContentLength)
+                    "${responseDate - requestDate} ms"
                 }
 
                 MonitorHttpStatus.Failed -> {
@@ -196,6 +186,23 @@ internal data class MonitorHttp(
                 }
             }
         }
+    }
+
+    val totalSizeFormat by lazy(mode = LazyThreadSafetyMode.NONE) {
+        when (httpStatus) {
+            MonitorHttpStatus.Requesting -> {
+                ""
+            }
+
+            MonitorHttpStatus.Complete -> {
+                FormatUtils.formatBytes(requestContentLength + responseContentLength)
+            }
+
+            MonitorHttpStatus.Failed -> {
+                ""
+            }
+        }
+    }
 
     fun getRequestHeadersString(withMarkup: Boolean): String {
         return FormatUtils.formatHeaders(requestHeaders, withMarkup)
@@ -206,3 +213,5 @@ internal data class MonitorHttp(
     }
 
 }
+
+internal data class MonitorHttpDetail(val header: String, val value: String)

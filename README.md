@@ -2,7 +2,7 @@
 
 Monitor 是一个适用于 OkHttp / Retrofit 的可视化抓包工具
 
-![](https://github.com/leavesCZY/Monitor/assets/30774063/08938a42-9137-47a9-bbcb-ec29c16d76b6)
+![](https://github.com/leavesCZY/Monitor/assets/30774063/9e09da9a-fda6-416a-a016-b82e0cde7ad3)
 
 只需为 OkHttpClient 添加 MonitorInterceptor，就可以自动记录并缓存所有的网络请求信息，并提供可视化页面进行查看
 
