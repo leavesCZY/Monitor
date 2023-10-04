@@ -84,7 +84,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-//    val latestVersion = "1.3.1"
+//    val latestVersion = "1.3.2"
 //    debugImplementation("com.github.leavesCZY.Monitor:monitor:${latestVersion}")
 //    releaseImplementation("com.github.leavesCZY.Monitor:monitor-no-op:${latestVersion}")
     debugImplementation(project(":monitor"))
