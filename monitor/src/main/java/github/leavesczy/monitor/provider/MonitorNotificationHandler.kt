@@ -10,7 +10,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import github.leavesczy.monitor.R
-import github.leavesczy.monitor.db.MonitorHttp
+import github.leavesczy.monitor.db.Monitor
 import github.leavesczy.monitor.ui.MonitorActivity
 
 /**
@@ -19,7 +19,7 @@ import github.leavesczy.monitor.ui.MonitorActivity
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-internal object NotificationProvider {
+internal object MonitorNotificationHandler {
 
     private const val CHANNEL_ID = "github.leavesczy.monitor"
 
@@ -39,12 +39,10 @@ internal object NotificationProvider {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val transactionBuffer = LongSparseArray<MonitorHttp>()
-
-    private var transactionCount: Int = 0
+    private val transactionBuffer = LongSparseArray<Monitor>()
 
     @Volatile
-    private var showNotification = true
+    private var transactionCount: Int = 0
 
     init {
         val channel = NotificationChannelCompat.Builder(
@@ -60,37 +58,35 @@ internal object NotificationProvider {
     }
 
     @Synchronized
-    fun show(monitorHttp: MonitorHttp) {
-        if (showNotification) {
-            addToBuffer(monitorHttp = monitorHttp)
-            val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setContentIntent(getContentIntent(context = context))
-                .setOnlyAlertOnce(true)
-                .setSmallIcon(R.drawable.monitor_icon_launcher)
-                .setContentTitle(NOTIFICATION_TITLE)
-                .setAutoCancel(false)
-            val inboxStyle = NotificationCompat.InboxStyle()
-            val size = transactionBuffer.size()
-            if (size > 0) {
-                builder.setContentText(transactionBuffer.valueAt(size - 1).notificationText)
-                for (i in size - 1 downTo 0) {
-                    inboxStyle.addLine(transactionBuffer.valueAt(i).notificationText)
-                }
+    fun show(monitor: Monitor) {
+        addToBuffer(monitor = monitor)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentIntent(getContentIntent(context = context))
+            .setOnlyAlertOnce(true)
+            .setSmallIcon(R.drawable.monitor_icon_launcher)
+            .setContentTitle(NOTIFICATION_TITLE)
+            .setAutoCancel(false)
+        val inboxStyle = NotificationCompat.InboxStyle()
+        val size = transactionBuffer.size()
+        if (size > 0) {
+            builder.setContentText(transactionBuffer.valueAt(size - 1).notificationText)
+            for (i in size - 1 downTo 0) {
+                inboxStyle.addLine(transactionBuffer.valueAt(i).notificationText)
             }
-            builder.setStyle(inboxStyle)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                builder.setSubText(transactionCount.toString())
-            } else {
-                builder.setNumber(transactionCount)
-            }
-            notificationManager.notify(NOTIFICATION_ID, builder.build())
         }
+        builder.setStyle(inboxStyle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            builder.setSubText(transactionCount.toString())
+        } else {
+            builder.setNumber(transactionCount)
+        }
+        notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
     @Synchronized
-    private fun addToBuffer(monitorHttp: MonitorHttp) {
+    private fun addToBuffer(monitor: Monitor) {
         transactionCount++
-        transactionBuffer.put(monitorHttp.id, monitorHttp)
+        transactionBuffer.put(monitor.id, monitor)
         if (transactionBuffer.size() > BUFFER_SIZE) {
             transactionBuffer.removeAt(0)
         }

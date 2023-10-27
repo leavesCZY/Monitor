@@ -1,22 +1,15 @@
 package github.leavesczy.monitor.ui
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import github.leavesczy.monitor.R
-import github.leavesczy.monitor.adapter.MonitorAdapter
-import github.leavesczy.monitor.adapter.MonitorItemClickListener
+import github.leavesczy.monitor.db.Monitor
 import github.leavesczy.monitor.db.MonitorDatabase
-import github.leavesczy.monitor.db.MonitorHttp
-import github.leavesczy.monitor.provider.NotificationProvider
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
+import github.leavesczy.monitor.provider.MonitorNotificationHandler
 import kotlinx.coroutines.launch
 
 /**
@@ -27,67 +20,37 @@ import kotlinx.coroutines.launch
  */
 internal class MonitorActivity : AppCompatActivity() {
 
-    private val httpRecordFlow by lazy(mode = LazyThreadSafetyMode.NONE) {
-        MonitorDatabase.instance.monitorDao.queryRecord(limit = 400)
-    }
-
-    private val monitorAdapter = MonitorAdapter()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.monitor_activity_monitor)
-        initView()
-        initObserver()
+        setContent {
+            val httpRecordFlow =
+                MonitorDatabase.instance.monitorDao.queryFlow(limit = 300)
+            val dataList by httpRecordFlow.collectAsState(initial = emptyList())
+            MonitorPage(
+                onClickBack = ::onClickBack,
+                onClickClear = ::onClickClear,
+                dataList = dataList,
+                onClickMonitorItem = ::onClickMonitorItem
+            )
+        }
     }
 
-    private fun initView() {
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setTitle(R.string.monitor_library_name)
-        }
-        monitorAdapter.clickListener = object : MonitorItemClickListener {
-            override fun onClick(position: Int, model: MonitorHttp) {
-                MonitorDetailsActivity.navTo(this@MonitorActivity, model.id)
-            }
-        }
-        val recyclerView = findViewById<RecyclerView>(R.id.rvMonitorList)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = monitorAdapter
+    private fun onClickBack() {
+        finish()
     }
 
-    private fun initObserver() {
+    private fun onClickClear() {
         lifecycleScope.launch {
-            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-                httpRecordFlow
-                    .distinctUntilChanged()
-                    .collectLatest {
-                        monitorAdapter.setData(it)
-                    }
-            }
+            MonitorDatabase.instance.monitorDao.deleteAll()
+            MonitorNotificationHandler.clearBuffer()
+            MonitorNotificationHandler.dismiss()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.monitor_menu_home, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.clear -> {
-                lifecycleScope.launch {
-                    MonitorDatabase.instance.monitorDao.deleteAll()
-                    NotificationProvider.clearBuffer()
-                    NotificationProvider.dismiss()
-                }
-            }
-
-            android.R.id.home -> {
-                finish()
-            }
-        }
-        return true
+    private fun onClickMonitorItem(monitor: Monitor) {
+        val intent = Intent(this, MonitorDetailsActivity::class.java)
+        intent.putExtra(MonitorDetailsActivity.KEY_ID, monitor.id)
+        startActivity(intent)
     }
 
 }

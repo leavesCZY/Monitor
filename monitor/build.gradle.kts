@@ -19,6 +19,17 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs += setOf(
+            "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+        )
+    }
+    buildFeatures {
+        compose = true
+        buildConfig = false
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
     publishing {
         singleVariant("release") {
@@ -30,12 +41,17 @@ android {
 
 dependencies {
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.google.material)
     implementation(libs.google.gson)
     compileOnly(libs.okhttp)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material.icons)
+    implementation(libs.compose.material3)
 }
 
 afterEvaluate {

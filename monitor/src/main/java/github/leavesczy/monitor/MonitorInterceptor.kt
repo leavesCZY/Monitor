@@ -2,11 +2,11 @@ package github.leavesczy.monitor
 
 import android.app.Application
 import android.content.Context
+import github.leavesczy.monitor.db.Monitor
 import github.leavesczy.monitor.db.MonitorDatabase
-import github.leavesczy.monitor.db.MonitorHttp
-import github.leavesczy.monitor.db.MonitorHttpHeader
+import github.leavesczy.monitor.db.MonitorHeader
 import github.leavesczy.monitor.provider.ContextProvider
-import github.leavesczy.monitor.provider.NotificationProvider
+import github.leavesczy.monitor.provider.MonitorNotificationHandler
 import github.leavesczy.monitor.utils.ResponseUtils
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -29,8 +29,8 @@ class MonitorInterceptor(context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         var monitorHttp = buildMonitorHttp(request = request)
-        monitorHttp = insert(monitorHttp = monitorHttp)
-        NotificationProvider.show(monitorHttp = monitorHttp)
+        monitorHttp = insert(monitor = monitorHttp)
+        MonitorNotificationHandler.show(monitor = monitorHttp)
         var response: Response?
         var error: Throwable?
         try {
@@ -44,13 +44,13 @@ class MonitorInterceptor(context: Context) : Interceptor {
             monitorHttp = if (response != null) {
                 processResponse(
                     response = response,
-                    monitorHttp = monitorHttp
+                    monitor = monitorHttp
                 )
             } else {
                 monitorHttp.copy(error = error.toString())
             }
-            update(monitorHttp = monitorHttp)
-            NotificationProvider.show(monitorHttp = monitorHttp)
+            update(monitor = monitorHttp)
+            MonitorNotificationHandler.show(monitor = monitorHttp)
         } catch (_: Throwable) {
 
         }
@@ -60,7 +60,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
         return response!!
     }
 
-    private fun buildMonitorHttp(request: Request): MonitorHttp {
+    private fun buildMonitorHttp(request: Request): Monitor {
         val requestDate = System.currentTimeMillis()
         val requestBody = request.body
         val url = request.url
@@ -70,7 +70,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
         val query = url.encodedQuery ?: ""
         val method = request.method
         val requestHeaders = request.headers.map {
-            MonitorHttpHeader(name = it.first, value = it.second)
+            MonitorHeader(name = it.first, value = it.second)
         }
         val mRequestBody =
             if (requestBody != null && ResponseUtils.bodyHasSupportedEncoding(request.headers)) {
@@ -88,7 +88,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
             }
         val requestContentLength = requestBody?.contentLength() ?: 0
         val requestContentType = requestBody?.contentType()?.toString() ?: ""
-        return MonitorHttp(
+        return Monitor(
             id = 0L,
             url = url.toString(),
             scheme = scheme,
@@ -116,13 +116,13 @@ class MonitorInterceptor(context: Context) : Interceptor {
 
     private fun processResponse(
         response: Response,
-        monitorHttp: MonitorHttp
-    ): MonitorHttp {
+        monitor: Monitor
+    ): Monitor {
         val requestHeaders = response.request.headers.map {
-            MonitorHttpHeader(name = it.first, value = it.second)
+            MonitorHeader(name = it.first, value = it.second)
         }
         val responseHeaders = response.headers.map {
-            MonitorHttpHeader(name = it.first, value = it.second)
+            MonitorHeader(name = it.first, value = it.second)
         }
         val responseBody = response.body
         val responseContentType: String
@@ -148,7 +148,7 @@ class MonitorInterceptor(context: Context) : Interceptor {
         } else {
             responseContentType = ""
         }
-        return monitorHttp.copy(
+        return monitor.copy(
             requestDate = response.sentRequestAtMillis,
             responseDate = response.receivedResponseAtMillis,
             protocol = response.protocol.toString(),
@@ -164,13 +164,13 @@ class MonitorInterceptor(context: Context) : Interceptor {
         )
     }
 
-    private fun insert(monitorHttp: MonitorHttp): MonitorHttp {
-        val id = MonitorDatabase.instance.monitorDao.insert(model = monitorHttp)
-        return monitorHttp.copy(id = id)
+    private fun insert(monitor: Monitor): Monitor {
+        val id = MonitorDatabase.instance.monitorDao.insert(model = monitor)
+        return monitor.copy(id = id)
     }
 
-    private fun update(monitorHttp: MonitorHttp) {
-        MonitorDatabase.instance.monitorDao.update(model = monitorHttp)
+    private fun update(monitor: Monitor) {
+        MonitorDatabase.instance.monitorDao.update(model = monitor)
     }
 
 }

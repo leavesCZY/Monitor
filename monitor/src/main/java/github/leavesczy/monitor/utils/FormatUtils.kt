@@ -1,10 +1,9 @@
 package github.leavesczy.monitor.utils
 
-import android.annotation.SuppressLint
 import android.text.format.Formatter
-import github.leavesczy.monitor.db.MonitorHttp
-import github.leavesczy.monitor.db.MonitorHttpDetail
-import github.leavesczy.monitor.db.MonitorHttpHeader
+import github.leavesczy.monitor.db.Monitor
+import github.leavesczy.monitor.db.MonitorDetail
+import github.leavesczy.monitor.db.MonitorHeader
 import github.leavesczy.monitor.provider.ContextProvider
 import github.leavesczy.monitor.provider.JsonProvider
 import org.w3c.dom.Document
@@ -32,7 +31,6 @@ import javax.xml.transform.stream.StreamResult
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
-@SuppressLint("ConstantLocale")
 internal object FormatUtils {
 
     fun getDateMDHMS(date: Long): String {
@@ -49,23 +47,13 @@ internal object FormatUtils {
         return Formatter.formatFileSize(ContextProvider.context, bytes)
     }
 
-    fun formatHeaders(httpHeaders: List<MonitorHttpHeader>, withMarkup: Boolean): String {
+    private fun formatHeaders(headers: List<MonitorHeader>): String {
         return buildString {
-            for ((name, value) in httpHeaders) {
-                if (withMarkup) {
-                    append("<b>")
-                }
+            for ((name, value) in headers) {
                 append(name)
                 append(" : ")
-                if (withMarkup) {
-                    append("</b>")
-                }
                 append(value)
-                if (withMarkup) {
-                    append("<br/>")
-                } else {
-                    append("\n")
-                }
+                append("\n")
             }
         }
     }
@@ -119,10 +107,10 @@ internal object FormatUtils {
         }
     }
 
-    fun getShareText(monitorHttp: MonitorHttp): String {
+    fun getShareText(monitor: Monitor): String {
         return buildString {
-            val httpOverview = buildMonitorHttpOverview(monitorHttp = monitorHttp)
-            httpOverview.forEach {
+            val overview = buildMonitorOverview(monitor = monitor)
+            overview.forEach {
                 append(it.header)
                 append(" : ")
                 append(it.value)
@@ -131,96 +119,41 @@ internal object FormatUtils {
             append("\n")
             append("----------Request----------")
             append("\n\n")
-            append(monitorHttp.getRequestHeadersString(withMarkup = false))
-            append(monitorHttp.requestBodyFormat)
+            append(formatHeaders(monitor.requestHeaders))
+            append(monitor.requestBodyFormat)
             append("\n\n")
             append("----------Response----------")
             append("\n\n")
-            append(monitorHttp.getResponseHeadersString(withMarkup = false))
-            append(monitorHttp.responseBodyFormat)
+            append(formatHeaders(monitor.responseHeaders))
+            append(monitor.responseBodyFormat)
         }
     }
 
-    fun buildMonitorHttpOverview(monitorHttp: MonitorHttp): List<MonitorHttpDetail> {
+    fun buildMonitorOverview(monitor: Monitor): List<MonitorDetail> {
         return buildList {
+            add(MonitorDetail(header = "Url", value = monitor.url))
+            add(MonitorDetail(header = "Method", value = monitor.method))
+            add(MonitorDetail(header = "Protocol", value = monitor.protocol))
+            add(MonitorDetail(header = "Status", value = monitor.httpStatus.toString()))
+            add(MonitorDetail(header = "Response", value = monitor.responseSummaryText))
+            add(MonitorDetail(header = "TlsVersion", value = monitor.responseTlsVersion))
+            add(MonitorDetail(header = "CipherSuite", value = monitor.responseCipherSuite))
+            add(MonitorDetail(header = "Request Time", value = monitor.requestDateYMDHMSS))
+            add(MonitorDetail(header = "Response Time", value = monitor.responseDateYMDHMSS))
+            add(MonitorDetail(header = "Duration", value = monitor.requestDurationFormat))
             add(
-                MonitorHttpDetail(
-                    header = "Url",
-                    value = monitorHttp.url
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Method",
-                    value = monitorHttp.method
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Protocol",
-                    value = monitorHttp.protocol
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Status",
-                    value = monitorHttp.httpStatus.toString()
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Response",
-                    value = monitorHttp.responseSummaryText
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "TlsVersion",
-                    value = monitorHttp.responseTlsVersion
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "CipherSuite",
-                    value = monitorHttp.responseCipherSuite
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Request Time",
-                    value = monitorHttp.requestDateYMDHMSS
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Response Time",
-                    value = monitorHttp.responseDateYMDHMSS
-                )
-            )
-            add(
-                MonitorHttpDetail(
-                    header = "Duration",
-                    value = monitorHttp.requestDurationFormat
-                )
-            )
-            add(
-                MonitorHttpDetail(
+                MonitorDetail(
                     header = "Request Size",
-                    value = formatBytes(monitorHttp.requestContentLength)
+                    value = formatBytes(monitor.requestContentLength)
                 )
             )
             add(
-                MonitorHttpDetail(
+                MonitorDetail(
                     header = "Response Size",
-                    value = formatBytes(monitorHttp.responseContentLength)
+                    value = formatBytes(monitor.responseContentLength)
                 )
             )
-            add(
-                MonitorHttpDetail(
-                    header = "Total Size",
-                    value = monitorHttp.totalSizeFormat
-                )
-            )
+            add(MonitorDetail(header = "Total Size", value = monitor.totalSizeFormat))
         }
     }
 

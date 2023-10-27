@@ -16,16 +16,19 @@ import kotlinx.coroutines.flow.Flow
 internal interface MonitorDao {
 
     @Insert
-    fun insert(model: MonitorHttp): Long
+    fun insert(model: Monitor): Long
 
     @Update
-    fun update(model: MonitorHttp)
+    fun update(model: Monitor)
 
     @Query("select * from ${MonitorDatabase.MonitorTableName} where id =:id")
-    fun queryRecord(id: Long): Flow<MonitorHttp>
+    suspend fun query(id: Long): Monitor
+
+    @Query("select * from ${MonitorDatabase.MonitorTableName} where id =:id")
+    fun queryFlow(id: Long): Flow<Monitor>
 
     @Query("select * from ${MonitorDatabase.MonitorTableName} order by id desc limit :limit")
-    fun queryRecord(limit: Int): Flow<List<MonitorHttp>>
+    fun queryFlow(limit: Int): Flow<List<Monitor>>
 
     @Query("delete from ${MonitorDatabase.MonitorTableName}")
     suspend fun deleteAll()

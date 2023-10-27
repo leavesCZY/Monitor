@@ -14,9 +14,8 @@ import github.leavesczy.monitor.provider.ContextProvider
  * @Github：https://github.com/leavesCZY
  */
 @Database(
-    entities = [MonitorHttp::class],
-    version = 24,
-    exportSchema = true
+    entities = [Monitor::class],
+    version = 26
 )
 @TypeConverters(MonitorTypeConverter::class)
 internal abstract class MonitorDatabase : RoomDatabase() {

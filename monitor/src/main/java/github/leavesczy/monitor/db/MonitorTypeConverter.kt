@@ -12,12 +12,12 @@ import github.leavesczy.monitor.provider.JsonProvider
 internal class MonitorTypeConverter {
 
     @TypeConverter
-    fun fromJsonArray(json: String): List<MonitorHttpHeader> {
-        return JsonProvider.fromJsonArray(json, MonitorHttpHeader::class.java)
+    fun fromJsonArray(json: String): List<MonitorHeader> {
+        return JsonProvider.fromJsonArray(json, MonitorHeader::class.java)
     }
 
     @TypeConverter
-    fun toJson(list: List<MonitorHttpHeader>): String {
+    fun toJson(list: List<MonitorHeader>): String {
         return JsonProvider.toJson(list)
     }
 

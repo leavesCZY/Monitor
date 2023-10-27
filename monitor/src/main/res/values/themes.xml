@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Monitor.Base" parent="Theme.Design.Light.NoActionBar" />
-
-    <style name="Theme.Monitor" parent="Theme.Monitor.Base">
+    <style name="Theme.Monitor" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">@color/monitor_top_bar</item>
         <item name="android:navigationBarColor">@android:color/white</item>
-    </style>
-
-    <style name="Monitor.Item.Title" parent="android:TextAppearance">
-        <item name="android:textSize">17sp</item>
-    </style>
-
-    <style name="Monitor.Item.Content" parent="android:TextAppearance">
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="Monitor.TextAppearance.ToolbarTextStyle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="textAllCaps">false</item>
-        <item name="android:textSize">17sp</item>
-    </style>
-
-    <style name="Monitor.TextAppearance.TabLayoutTextStyle" parent="TextAppearance.Design.Tab">
-        <item name="textAllCaps">false</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
 </resources>
