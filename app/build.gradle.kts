@@ -1,21 +1,15 @@
-@file:Suppress("UnstableApiUsage")
-
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.TimeZone
-
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "github.leavesczy.monitor.samples"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         applicationId = "github.leavesczy.monitor.samples"
         minSdk = 21
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -56,16 +50,6 @@ android {
             )
         }
     }
-    applicationVariants.all {
-        outputs.all {
-            if (this is com.android.build.gradle.internal.api.ApkVariantOutputImpl) {
-                val simpleDateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
-                simpleDateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-                val time = simpleDateFormat.format(Calendar.getInstance().time)
-                this.outputFileName = "monitor_${time}.apk"
-            }
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -76,17 +60,14 @@ android {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
-//    val latestVersion = "1.3.2"
-//    debugImplementation("com.github.leavesCZY.Monitor:monitor:${latestVersion}")
-//    releaseImplementation("com.github.leavesCZY.Monitor:monitor-no-op:${latestVersion}")
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.androidx.junit)
+    androidTestImplementation(libs.test.androidx.espresso)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.google.material)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
     debugImplementation(project(":monitor"))
     releaseImplementation(project(":monitor-no-op"))
 }

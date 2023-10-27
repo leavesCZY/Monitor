@@ -1,0 +1,46 @@
+[versions]
+android-plugin = "8.1.2"
+kotlin-plugin = "1.9.10"
+ksp-plugin = "1.9.10-1.0.13"
+
+junit-junit = "4.13.2"
+
+androidx-junit = "1.1.5"
+androidx-espresso = "3.5.1"
+androidx-appcompat = "1.6.1"
+androidx-lifecycle-runtime-ktx = "2.6.2"
+
+google-material = "1.10.0"
+google-gson = "2.10.1"
+
+room = "2.6.0"
+
+okhttp = "4.12.0"
+
+retrofit = "2.9.0"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
+google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
+
+[libraries]
+test-junit = { module = "junit:junit", version.ref = "junit-junit" }
+test-androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+test-androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
+
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime-ktx" }
+
+google-material = { module = "com.google.android.material:material", version.ref = "google-material" }
+google-gson = { module = "com.google.code.gson:gson", version.ref = "google-gson" }
+
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }

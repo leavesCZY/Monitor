@@ -1,13 +1,14 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.google.ksp)
     id("maven-publish")
+    id("signing")
 }
 
 android {
     namespace = "github.leavesczy.monitor"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         minSdk = 21
         consumerProguardFiles.add(File("consumer-rules.pro"))
@@ -28,14 +29,13 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("com.google.code.gson:gson:2.10.1")
-    compileOnly("com.squareup.okhttp3:okhttp:4.11.0")
-    val roomVersion = "2.5.2"
-    implementation("androidx.room:room-ktx:${roomVersion}")
-    ksp("androidx.room:room-compiler:${roomVersion}")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.google.material)
+    implementation(libs.google.gson)
+    compileOnly(libs.okhttp)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 }
 
 afterEvaluate {

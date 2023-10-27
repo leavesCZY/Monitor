@@ -1,12 +1,13 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
     id("maven-publish")
+    id("signing")
 }
 
 android {
     namespace = "github.leavesczy.monitor"
-    compileSdk = 33
+    compileSdk = 34
     defaultConfig {
         minSdk = 21
     }
@@ -26,7 +27,7 @@ android {
 }
 
 dependencies {
-    compileOnly("com.squareup.okhttp3:okhttp:4.11.0")
+    compileOnly(libs.okhttp)
 }
 
 afterEvaluate {
