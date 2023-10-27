@@ -1,5 +1,6 @@
 package github.leavesczy.monitor.db
 
+import androidx.compose.runtime.Stable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -11,6 +12,7 @@ import github.leavesczy.monitor.utils.FormatUtils
  * @Desc:
  * @Github：https://github.com/leavesCZY
  */
+@Stable
 @Entity(tableName = MonitorDatabase.MonitorTableName)
 internal data class Monitor(
     @PrimaryKey(autoGenerate = true)
@@ -198,12 +200,15 @@ internal data class Monitor(
 
 }
 
+@Stable
 internal data class MonitorHeader(val name: String, val value: String)
 
+@Stable
 internal enum class MonitorStatus {
     Requesting,
     Complete,
     Failed
 }
 
+@Stable
 internal data class MonitorDetail(val header: String, val value: String)
