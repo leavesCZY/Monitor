@@ -1,4 +1,4 @@
-package github.leavesczy.monitor.provider
+package github.leavesczy.monitor.internal
 
 import android.app.Application
 
@@ -6,7 +6,6 @@ import android.app.Application
  * @Author: leavesCZY
  * @Date: 2020/11/8 15:34
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 internal object ContextProvider {
 
@@ -14,7 +13,7 @@ internal object ContextProvider {
         private set
 
     fun inject(context: Application) {
-        this.context = context
+        ContextProvider.context = context
     }
 
 }

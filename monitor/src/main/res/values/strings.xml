@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="monitor_library_name">Monitor</string>
+    <string name="monitor_monitor">Monitor</string>
+    <string name="monitor_overview">Overview</string>
+    <string name="monitor_request">Request</string>
+    <string name="monitor_response">Response</string>
+    <string name="monitor_encoded_body_omitted">(encoded body omitted)</string>
+    <string name="monitor_copied">copied</string>
+    <string name="monitor_copy">copy</string>
+    <string name="monitor_share_as_text">share as text</string>
+    <string name="monitor_share_as_file">share as file</string>
+    <string name="monitor_notification_channel_id">Monitor</string>
+    <string name="monitor_notification_channel_name">Http Monitor</string>
+    <string name="monitor_notification_channel_description">Automatically record http requests</string>
+    <string name="monitor_notification_title">Recording Http Activity</string>
 </resources>

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="monitor_samples_top_bar">#FF0277BD</color>
+    <color name="color_top_bar">#FF0277BD</color>
 </resources>

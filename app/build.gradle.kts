@@ -20,7 +20,7 @@ android {
     signingConfigs {
         create("release") {
             storeFile =
-                File(rootDir.absolutePath + File.separator + "doc" + File.separator + "key.jks")
+                File(rootDir.absolutePath + File.separator + "key" + File.separator + "key.jks")
             keyAlias = "leavesCZY"
             keyPassword = "123456"
             storePassword = "123456"
@@ -55,19 +55,21 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 }
 
 dependencies {
-    testImplementation(libs.test.junit)
-    androidTestImplementation(libs.test.androidx.junit)
-    androidTestImplementation(libs.test.androidx.espresso)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
-    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofit.converter.gson)
+    implementation(libs.squareup.okHttp.logging.interceptor)
+//    debugImplementation(libs.monitor)
+//    releaseImplementation(libs.monitor.no.op)
     debugImplementation(project(":monitor"))
     releaseImplementation(project(":monitor-no-op"))
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="monitor_status_bar_color">#FF101010</color>
+    <color name="monitor_navigation_bar">#FF222222</color>
+    <color name="monitor_top_bar_tab_text_selected">#FFFFFFFF</color>
+    <color name="monitor_top_bar_tab_text_unselected">#CCFFFFFF</color>
+    <color name="monitor_http_status_requesting_title">#99FFFFFF</color>
+    <color name="monitor_http_status_requesting_subtitle">#99FFFFFF</color>
+    <color name="monitor_http_status_successful_title">#DEFFFFFF</color>
+    <color name="monitor_http_status_successful_subtitle">#99FFFFFF</color>
+    <color name="monitor_http_status_unsuccessful_title">#FFEB6847</color>
+    <color name="monitor_http_status_unsuccessful_subtitle">#66FFFFFF</color>
+    <color name="monitor_http_body">#DEFFFFFF</color>
+</resources>

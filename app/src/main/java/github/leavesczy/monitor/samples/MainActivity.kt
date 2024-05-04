@@ -16,70 +16,44 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 /**
  * @Author: leavesCZY
- * @Date: 2020/10/20 18:34
+ * @Date: 2024/3/1 23:24
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 class MainActivity : AppCompatActivity() {
 
     private val okHttpClient by lazy(mode = LazyThreadSafetyMode.NONE) {
         OkHttpClient.Builder().apply {
-            callTimeout(30, TimeUnit.SECONDS)
-            connectTimeout(30, TimeUnit.SECONDS)
-            readTimeout(30, TimeUnit.SECONDS)
-            writeTimeout(30, TimeUnit.SECONDS)
-            retryOnConnectionFailure(true)
             addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
-            addInterceptor(FilterInterceptor())
-            addNetworkInterceptor(MonitorInterceptor(context = application))
+            addNetworkInterceptor(MonitorInterceptor())
         }.build()
     }
 
-    private val apiServiceMock by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val apiService by lazy(mode = LazyThreadSafetyMode.NONE) {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://httpbin.org")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
-        retrofit.create(ApiServiceMock::class.java)
+        retrofit.create(ApiService::class.java)
     }
 
-    private val apiServiceWeather by lazy(mode = LazyThreadSafetyMode.NONE) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://restapi.amap.com/v3/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-        retrofit.create(ApiServiceWeather::class.java)
-    }
-
-    private val requestNotificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        checkNotificationPermission()
-    }
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            checkNotificationPermission()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initView()
-        requestNotificationPermission()
-    }
-
-    private fun initView() {
         findViewById<View>(R.id.btnNetworkRequest).setOnClickListener {
             showToast("已发起请求，请查看消息通知栏")
             networkRequest()
         }
-    }
-
-    private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
@@ -107,25 +81,18 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-        apiServiceMock.get().enqueue(callback)
-        apiServiceMock.post(body = Data(thing = "posted")).enqueue(callback)
-        apiServiceMock.patch(body = Data(thing = "patched")).enqueue(callback)
-        apiServiceMock.put(body = Data(thing = "put")).enqueue(callback)
-        apiServiceMock.delete().enqueue(callback)
-        apiServiceMock.status(code = 200).enqueue(callback)
-        apiServiceMock.status(code = 201).enqueue(callback)
-        apiServiceMock.delay(seconds = 1).enqueue(callback)
-        apiServiceMock.delay(seconds = 2).enqueue(callback)
-        apiServiceMock.stream(lines = 200).enqueue(callback)
-        apiServiceMock.streamBytes(bytes = 2048).enqueue(callback)
-        apiServiceMock.image("image/png").enqueue(callback)
-        apiServiceMock.gzip().enqueue(callback)
-        apiServiceMock.xml().enqueue(callback)
-        apiServiceMock.utf8().enqueue(callback)
-        apiServiceMock.deflate().enqueue(callback)
-        apiServiceWeather.getProvince().enqueue(callback)
-        apiServiceWeather.getCity("440000").enqueue(callback)
-        apiServiceWeather.getCounty("440100").enqueue(callback)
+        apiService.get().enqueue(callback)
+        apiService.get(code = 404).enqueue(callback)
+        apiService.post().enqueue(callback)
+        apiService.post(body = Data(random = "posted")).enqueue(callback)
+        apiService.put(body = Data(random = "put")).enqueue(callback)
+        apiService.delete().enqueue(callback)
+        apiService.deny().enqueue(callback)
+        apiService.gzip().enqueue(callback)
+        apiService.xml().enqueue(callback)
+        apiService.utf8().enqueue(callback)
+        apiService.delay(seconds = 2).enqueue(callback)
+        apiService.stream(lines = 2).enqueue(callback)
     }
 
 }

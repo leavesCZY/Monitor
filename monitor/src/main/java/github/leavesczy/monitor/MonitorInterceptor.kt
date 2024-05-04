@@ -1,66 +1,60 @@
 package github.leavesczy.monitor
 
-import android.app.Application
-import android.content.Context
-import github.leavesczy.monitor.db.Monitor
-import github.leavesczy.monitor.db.MonitorDatabase
-import github.leavesczy.monitor.db.MonitorHeader
-import github.leavesczy.monitor.provider.ContextProvider
-import github.leavesczy.monitor.provider.MonitorNotificationHandler
-import github.leavesczy.monitor.utils.ResponseUtils
+import github.leavesczy.monitor.internal.ContextProvider
+import github.leavesczy.monitor.internal.MonitorNotificationHandler
+import github.leavesczy.monitor.internal.db.Monitor
+import github.leavesczy.monitor.internal.db.MonitorDatabase
+import github.leavesczy.monitor.internal.db.MonitorPair
+import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.http.promisesBody
 import okio.Buffer
+import okio.GzipSource
+import java.io.EOFException
 
 /**
  * @Author: leavesCZY
- * @Date: 2020/10/20 18:26
+ * @Date: 2024/3/1 22:07
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
-class MonitorInterceptor(context: Context) : Interceptor {
+class MonitorInterceptor : Interceptor {
 
-    init {
-        ContextProvider.inject(context = context.applicationContext as Application)
-    }
+    @Volatile
+    private var notificationHandleInitialized = false
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        initNotificationHandlerIfNeed()
         val request = chain.request()
-        var monitorHttp = buildMonitorHttp(request = request)
-        monitorHttp = insert(monitor = monitorHttp)
-        MonitorNotificationHandler.show(monitor = monitorHttp)
-        var response: Response?
-        var error: Throwable?
-        try {
-            response = chain.proceed(request = request)
-            error = null
+        var monitor = buildMonitor(request = request)
+        monitor = insert(monitor = monitor)
+        val response = try {
+            chain.proceed(request = request)
         } catch (throwable: Throwable) {
-            response = null
-            error = throwable
+            update(monitor = monitor.copy(error = throwable.toString()))
+            throw throwable
         }
-        try {
-            monitorHttp = if (response != null) {
-                processResponse(
-                    response = response,
-                    monitor = monitorHttp
-                )
-            } else {
-                monitorHttp.copy(error = error.toString())
-            }
-            update(monitor = monitorHttp)
-            MonitorNotificationHandler.show(monitor = monitorHttp)
-        } catch (_: Throwable) {
-
-        }
-        if (error != null) {
-            throw error
-        }
-        return response!!
+        monitor = processResponse(
+            response = response,
+            monitor = monitor
+        )
+        update(monitor = monitor)
+        return response
     }
 
-    private fun buildMonitorHttp(request: Request): Monitor {
+    private fun initNotificationHandlerIfNeed() {
+        if (!notificationHandleInitialized) {
+            synchronized(this) {
+                if (!notificationHandleInitialized) {
+                    notificationHandleInitialized = true
+                    MonitorNotificationHandler.init(context = ContextProvider.context)
+                }
+            }
+        }
+    }
+
+    private fun buildMonitor(request: Request): Monitor {
         val requestDate = System.currentTimeMillis()
         val requestBody = request.body
         val url = request.url
@@ -70,22 +64,26 @@ class MonitorInterceptor(context: Context) : Interceptor {
         val query = url.encodedQuery ?: ""
         val method = request.method
         val requestHeaders = request.headers.map {
-            MonitorHeader(name = it.first, value = it.second)
+            MonitorPair(name = it.first, value = it.second)
         }
-        val mRequestBody =
-            if (requestBody != null && ResponseUtils.bodyHasSupportedEncoding(request.headers)) {
-                val buffer = Buffer()
-                requestBody.writeTo(buffer)
-                if (ResponseUtils.isProbablyUtf8(buffer)) {
-                    val charset =
-                        requestBody.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
-                    buffer.readString(charset)
-                } else {
-                    ""
+        val mRequestBody = if (requestBody == null) {
+            null
+        } else if (request.headers.bodyHasUnknownEncoding() || requestBody.isDuplex() || requestBody.isOneShot()) {
+            ""
+        } else {
+            val buffer = Buffer()
+            requestBody.writeTo(buffer)
+            val contentType = requestBody.contentType()
+            val charset = contentType?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+            if (buffer.isProbablyUtf8()) {
+                val read = buffer.readString(charset)
+                read.ifBlank {
+                    null
                 }
             } else {
                 ""
             }
+        }
         val requestContentLength = requestBody?.contentLength() ?: 0
         val requestContentType = requestBody?.contentType()?.toString() ?: ""
         return Monitor(
@@ -119,34 +117,35 @@ class MonitorInterceptor(context: Context) : Interceptor {
         monitor: Monitor
     ): Monitor {
         val requestHeaders = response.request.headers.map {
-            MonitorHeader(name = it.first, value = it.second)
+            MonitorPair(name = it.first, value = it.second)
         }
         val responseHeaders = response.headers.map {
-            MonitorHeader(name = it.first, value = it.second)
+            MonitorPair(name = it.first, value = it.second)
         }
         val responseBody = response.body
-        val responseContentType: String
-        var responseContentLength = 0L
-        var mResponseBody = "(encoded body omitted)"
-        if (responseBody != null) {
-            responseContentType = responseBody.contentType()?.toString() ?: ""
-            responseContentLength = responseBody.contentLength()
-            if (response.promisesBody()) {
-                val encodingIsSupported = ResponseUtils.bodyHasSupportedEncoding(response.headers)
-                if (encodingIsSupported) {
-                    val buffer = ResponseUtils.getNativeSource(response)
-                    responseContentLength = buffer.size
-                    if (ResponseUtils.isProbablyUtf8(buffer)) {
-                        if (responseBody.contentLength() != 0L) {
-                            val charset = responseBody.contentType()?.charset(Charsets.UTF_8)
-                                ?: Charsets.UTF_8
-                            mResponseBody = buffer.clone().readString(charset)
-                        }
-                    }
-                }
-            }
+        val responseContentType = responseBody?.contentType()?.toString() ?: ""
+        var responseContentLength = responseBody?.contentLength() ?: 0
+        val mResponseBody = if (responseBody == null) {
+            null
+        } else if (!response.promisesBody() || response.headers.bodyHasUnknownEncoding()) {
+            ""
         } else {
-            responseContentType = ""
+            val buffer = response.getNativeSource()
+            responseContentLength = buffer.size
+            if (buffer.isProbablyUtf8()) {
+                if (responseContentLength != 0L) {
+                    val charset = responseBody.contentType()?.charset(Charsets.UTF_8)
+                        ?: Charsets.UTF_8
+                    val read = buffer.clone().readString(charset)
+                    read.ifBlank {
+                        null
+                    }
+                } else {
+                    ""
+                }
+            } else {
+                ""
+            }
         }
         return monitor.copy(
             requestDate = response.sentRequestAtMillis,
@@ -165,12 +164,55 @@ class MonitorInterceptor(context: Context) : Interceptor {
     }
 
     private fun insert(monitor: Monitor): Monitor {
-        val id = MonitorDatabase.instance.monitorDao.insert(model = monitor)
+        val id = MonitorDatabase.instance.monitorDao.insertMonitor(monitor = monitor)
         return monitor.copy(id = id)
     }
 
     private fun update(monitor: Monitor) {
-        MonitorDatabase.instance.monitorDao.update(model = monitor)
+        MonitorDatabase.instance.monitorDao.updateMonitor(monitor = monitor)
     }
 
+}
+
+internal fun Buffer.isProbablyUtf8(): Boolean {
+    try {
+        val prefix = Buffer()
+        val byteCount = buffer.size.coerceAtMost(64)
+        buffer.copyTo(prefix, 0, byteCount)
+        for (i in 0 until 16) {
+            if (prefix.exhausted()) {
+                break
+            }
+            val codePoint = prefix.readUtf8CodePoint()
+            if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
+                return false
+            }
+        }
+        return true
+    } catch (_: EOFException) {
+        return false
+    }
+}
+
+internal fun Headers.bodyGzipped(): Boolean {
+    return this["Content-Encoding"].equals(other = "gzip", ignoreCase = true)
+}
+
+internal fun Headers.bodyHasUnknownEncoding(): Boolean {
+    val contentEncoding = this["Content-Encoding"] ?: return false
+    return !contentEncoding.equals("identity", ignoreCase = true) &&
+            !contentEncoding.equals("gzip", ignoreCase = true)
+}
+
+internal fun Response.getNativeSource(): Buffer {
+    val source = body!!.source()
+    source.request(Long.MAX_VALUE)
+    var buffer = source.buffer
+    if (headers.bodyGzipped()) {
+        GzipSource(source = buffer.clone()).use { responseBody ->
+            buffer = Buffer()
+            buffer.writeAll(source = responseBody)
+        }
+    }
+    return buffer
 }

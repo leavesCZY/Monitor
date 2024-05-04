@@ -2,12 +2,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.Monitor.Samples" parent="Theme.Material3.Light">
-        <item name="colorPrimary">@color/monitor_samples_top_bar</item>
-        <item name="colorSurface">@color/monitor_samples_top_bar</item>
+        <item name="colorPrimary">@color/color_top_bar</item>
         <item name="colorOnSurface">@android:color/white</item>
+        <item name="toolbarStyle">@style/Theme.Monitor.Toolbar</item>
         <item name="android:navigationBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+    </style>
+
+    <style name="Theme.Monitor.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/color_top_bar</item>
     </style>
 
 </resources>

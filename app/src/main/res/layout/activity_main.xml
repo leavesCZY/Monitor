@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:gravity="center"
     android:orientation="vertical">
 
@@ -12,8 +13,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:text="Network Request"
-        android:textAllCaps="false"
-        android:textSize="16sp"
         tools:ignore="HardcodedText" />
 
 </LinearLayout>

@@ -1,36 +1,35 @@
-package github.leavesczy.monitor.db
+package github.leavesczy.monitor.internal.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import github.leavesczy.monitor.provider.ContextProvider
+import github.leavesczy.monitor.internal.ContextProvider
 
 /**
  * @Author: leavesCZY
  * @Date: 2020/11/8 14:43
  * @Desc:
- * @Github：https://github.com/leavesCZY
  */
 @Database(
     entities = [Monitor::class],
-    version = 26
+    version = 40
 )
-@TypeConverters(MonitorTypeConverter::class)
+@TypeConverters(value = [MonitorTypeConverter::class])
 internal abstract class MonitorDatabase : RoomDatabase() {
 
     companion object {
 
-        private const val DB_NAME = "Monitor"
+        private const val MONITOR_DATABASE_NAME = "Monitor"
 
-        const val MonitorTableName = "MonitorHttp"
+        const val MONITOR_TABLE_NAME = "MonitorHttp"
 
         private var monitorDatabase: MonitorDatabase? = null
 
         val instance: MonitorDatabase
             get() {
-                return monitorDatabase ?: synchronized(lock = this) {
+                return monitorDatabase ?: synchronized(lock = MonitorDatabase::class.java) {
                     val cache = monitorDatabase
                     if (cache != null) {
                         return@synchronized cache
@@ -45,7 +44,7 @@ internal abstract class MonitorDatabase : RoomDatabase() {
             return Room.databaseBuilder(
                 context,
                 MonitorDatabase::class.java,
-                DB_NAME
+                MONITOR_DATABASE_NAME
             ).fallbackToDestructiveMigration()
                 .build()
         }

@@ -1,27 +1,27 @@
 [versions]
-android-plugin = "8.1.2"
-kotlin-plugin = "1.9.10"
-ksp-plugin = "1.9.10-1.0.13"
-
-junit-junit = "4.13.2"
+android-plugin = "8.4.0"
+kotlin-plugin = "1.9.0"
+ksp-plugin = "1.9.0-1.0.13"
 
 androidx-junit = "1.1.5"
 androidx-espresso = "3.5.1"
 androidx-appcompat = "1.6.1"
-androidx-activity-compose = "1.8.0"
-androidx-lifecycle-runtime-ktx = "2.6.2"
+androidx-activity = "1.9.0"
+androidx-room = "2.6.1"
+androidx-paging = "3.2.1"
+androidx-compose-bom = "2024.05.00"
+androidx-compose-compiler = "1.5.2"
 
-google-material = "1.10.0"
+google-material = "1.12.0"
 google-gson = "2.10.1"
 
-compose-bom = "2023.10.01"
-compose-compiler = "1.5.3"
+junit-junit = "4.13.2"
 
-room = "2.6.0"
+squareup-okHttp = "4.12.0"
+squareup-retrofit = "2.11.0"
 
-okhttp = "4.12.0"
-
-retrofit = "2.9.0"
+monitor-remote = "1.7.0"
+monitor-publishing = "1.7.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -30,28 +30,31 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-pl
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-plugin" }
 
 [libraries]
-test-junit = { module = "junit:junit", version.ref = "junit-junit" }
-test-androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
-test-androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
-
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
-androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime-ktx" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-room" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "androidx-room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidx-room" }
+
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidx-paging" }
+
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 
 google-material = { module = "com.google.android.material:material", version.ref = "google-material" }
 google-gson = { module = "com.google.code.gson:gson", version.ref = "google-gson" }
 
-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
-compose-ui = { module = "androidx.compose.ui:ui" }
-compose-foundation = { module = "androidx.compose.foundation:foundation" }
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
-compose-material3 = { module = "androidx.compose.material3:material3" }
+junit = { module = "junit:junit", version.ref = "junit-junit" }
 
-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+squareup-okHttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "squareup-okHttp" }
+squareup-okHttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "squareup-okHttp" }
 
-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
-okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+squareup-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "squareup-retrofit" }
+squareup-retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "squareup-retrofit" }
 
-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+monitor = { module = "io.github.leavesczy:monitor", version.ref = "monitor-remote" }
+monitor-no-op = { module = "io.github.leavesczy:monitor-no-op", version.ref = "monitor-remote" }
