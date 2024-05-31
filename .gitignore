@@ -6,3 +6,4 @@
 /app/release/
 /.idea/
 /local.properties
+/.kotlin/
