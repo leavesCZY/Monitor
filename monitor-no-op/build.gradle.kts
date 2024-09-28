@@ -35,15 +35,15 @@ val signingKeyId = properties["signing.keyId"]?.toString()
 val signingPassword = properties["signing.password"]?.toString()
 val signingSecretKeyRingFile = properties["signing.secretKeyRingFile"]?.toString()
 val mavenCentralUserName = properties["mavenCentral.username"]?.toString()
-val mavenCentralPassword = properties["mavenCentral.password"]?.toString()
 val mavenCentralEmail = properties["mavenCentral.email"]?.toString()
+val mavenCentralPassword = properties["mavenCentral.password"]?.toString()
 
 if (signingKeyId != null
     && signingPassword != null
     && signingSecretKeyRingFile != null
     && mavenCentralUserName != null
-    && mavenCentralPassword != null
     && mavenCentralEmail != null
+    && mavenCentralPassword != null
 ) {
     publishing {
         publications {
