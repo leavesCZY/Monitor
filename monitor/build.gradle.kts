@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "github.leavesczy.monitor"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
         consumerProguardFiles.add(File("consumer-rules.pro"))

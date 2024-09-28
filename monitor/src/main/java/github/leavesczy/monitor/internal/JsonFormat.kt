@@ -13,14 +13,14 @@ import java.lang.reflect.Type
  */
 internal object JsonFormat {
 
-    private val gson by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val gson by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
         GsonBuilder()
             .disableHtmlEscaping()
             .serializeNulls()
             .create()
     }
 
-    private val prettyPrintingGson by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val prettyPrintingGson by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
         gson.newBuilder()
             .setPrettyPrinting()
             .create()

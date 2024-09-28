@@ -12,8 +12,8 @@ internal object ContextProvider {
     lateinit var context: Application
         private set
 
-    fun inject(context: Application) {
-        ContextProvider.context = context
+    fun init(context: Application) {
+        this.context = context
     }
 
 }

@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "github.leavesczy.monitor"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
         consumerProguardFiles.add(File("consumer-rules.pro"))
@@ -35,15 +35,15 @@ val signingKeyId = properties["signing.keyId"]?.toString()
 val signingPassword = properties["signing.password"]?.toString()
 val signingSecretKeyRingFile = properties["signing.secretKeyRingFile"]?.toString()
 val mavenCentralUserName = properties["mavenCentral.username"]?.toString()
-val mavenCentralEmail = properties["mavenCentral.email"]?.toString()
 val mavenCentralPassword = properties["mavenCentral.password"]?.toString()
+val mavenCentralEmail = properties["mavenCentral.email"]?.toString()
 
 if (signingKeyId != null
     && signingPassword != null
     && signingSecretKeyRingFile != null
     && mavenCentralUserName != null
-    && mavenCentralEmail != null
     && mavenCentralPassword != null
+    && mavenCentralEmail != null
 ) {
     publishing {
         publications {

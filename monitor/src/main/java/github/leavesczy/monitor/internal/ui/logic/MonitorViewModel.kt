@@ -20,18 +20,12 @@ import kotlinx.coroutines.launch
  */
 internal class MonitorViewModel : ViewModel() {
 
-    companion object {
-
-        private const val PAGE_SIZE = 20
-
-    }
-
     fun getMonitors(): Flow<PagingData<Monitor>> =
         Pager(
             config = PagingConfig(
-                pageSize = PAGE_SIZE,
-                prefetchDistance = 10,
-                initialLoadSize = PAGE_SIZE
+                initialLoadSize = 20,
+                pageSize = 20,
+                prefetchDistance = 5
             ),
             pagingSourceFactory = {
                 MonitorDatabase.instance.monitorDao.queryMonitors()

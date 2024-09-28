@@ -131,7 +131,7 @@ internal class MonitorDetailsViewModel(
     }
 
     fun shareAsFile() {
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch(context = Dispatchers.Default) {
             try {
                 val shareText = queryMonitorShareText()
                 val shareFile = createShareFile()

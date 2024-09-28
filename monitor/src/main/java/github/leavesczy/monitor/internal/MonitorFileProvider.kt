@@ -11,7 +11,7 @@ import androidx.core.content.FileProvider
 internal class MonitorFileProvider : FileProvider() {
 
     override fun onCreate(): Boolean {
-        ContextProvider.inject(context = context as Application)
+        ContextProvider.init(context = context as Application)
         return super.onCreate()
     }
 

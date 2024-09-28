@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -71,9 +70,9 @@ import kotlinx.coroutines.launch
  */
 internal class MonitorDetailsActivity : AppCompatActivity() {
 
-    internal companion object {
+    companion object {
 
-        const val KEY_MONITOR_ID = "keyMonitorId"
+        const val KEY_MONITOR_ID = "monitorId"
 
     }
 
@@ -147,20 +146,15 @@ private fun MonitorDetailsPage(
                 .padding(paddingValues = innerPadding)
         ) {
             val coroutineScope = rememberCoroutineScope()
-            val pagerState = rememberPagerState(
-                initialPage = 0,
-                initialPageOffsetFraction = 0f
-            ) {
+            val pagerState = rememberPagerState {
                 mainPageViewState.tabTagList.size
             }
             ScrollableTabRow(
                 tagList = mainPageViewState.tabTagList,
                 selectedTabIndex = pagerState.currentPage,
                 scrollToPage = {
-                    if (pagerState.currentPage != it) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(page = it)
-                        }
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(page = it)
                     }
                 }
             )
@@ -172,23 +166,29 @@ private fun MonitorDetailsPage(
             ) {
                 when (it) {
                     0 -> {
-                        MonitorDetailsOverviewPage(
-                            pageViewState = overviewPageViewState
-                        )
+                        SelectionContainer {
+                            MonitorDetailsOverviewPage(
+                                pageViewState = overviewPageViewState
+                            )
+                        }
                     }
 
                     1 -> {
-                        MonitorDetailsPage(
-                            headers = requestPageViewState.headers,
-                            bodyFormat = requestPageViewState.formattedBody
-                        )
+                        SelectionContainer {
+                            MonitorDetailsPage(
+                                headers = requestPageViewState.headers,
+                                bodyFormat = requestPageViewState.formattedBody
+                            )
+                        }
                     }
 
                     2 -> {
-                        MonitorDetailsPage(
-                            headers = responsePageViewState.headers,
-                            bodyFormat = responsePageViewState.formattedBody
-                        )
+                        SelectionContainer {
+                            MonitorDetailsPage(
+                                headers = responsePageViewState.headers,
+                                bodyFormat = responsePageViewState.formattedBody
+                            )
+                        }
                     }
                 }
             }
@@ -331,7 +331,8 @@ private fun ScrollableTabRow(
     scrollToPage: (Int) -> Unit
 ) {
     TabRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         selectedTabIndex = selectedTabIndex,
         indicator = { tabPositions ->
             if (selectedTabIndex < tabPositions.size) {
@@ -372,7 +373,6 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
-        state = rememberLazyListState(),
         contentPadding = PaddingValues(
             start = 20.dp,
             top = 15.dp,
@@ -399,7 +399,6 @@ private fun MonitorDetailsPage(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
-        state = rememberLazyListState(),
         contentPadding = PaddingValues(
             start = 20.dp,
             top = 15.dp,
@@ -416,7 +415,9 @@ private fun MonitorDetailsPage(
             MonitorPairItem(pair = it)
         }
         if (bodyFormat.isNotBlank()) {
-            item(contentType = "bodyFormat") {
+            item(
+                contentType = "bodyFormat"
+            ) {
                 SelectionContainer {
                     Text(
                         modifier = Modifier
@@ -454,20 +455,15 @@ private fun MonitorPairItem(pair: MonitorPair) {
             lineHeight = 18.sp,
             color = colorResource(id = R.color.monitor_http_status_successful_title)
         )
-        SelectionContainer(
+        Text(
             modifier = Modifier
-                .weight(weight = 5f)
-        ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = pair.value,
-                fontFamily = FontFamily.Default,
-                fontWeight = FontWeight.Normal,
-                fontSize = 14.sp,
-                lineHeight = 16.sp,
-                color = colorResource(id = R.color.monitor_http_status_successful_subtitle)
-            )
-        }
+                .weight(weight = 5f),
+            text = pair.value,
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            lineHeight = 16.sp,
+            color = colorResource(id = R.color.monitor_http_status_successful_subtitle)
+        )
     }
 }
