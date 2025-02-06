@@ -3,10 +3,22 @@ package github.leavesczy.monitor.samples
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import github.leavesczy.monitor.MonitorInterceptor
 import okhttp3.OkHttpClient
@@ -22,6 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory
  * @Date: 2024/3/1 23:24
  * @Desc:
  */
+@ExperimentalMaterial3Api
 class MainActivity : AppCompatActivity() {
 
     private val okHttpClient by lazy(mode = LazyThreadSafetyMode.NONE) {
@@ -49,10 +62,45 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        findViewById<View>(R.id.btnNetworkRequest).setOnClickListener {
-            showToast("已发起请求，请查看消息通知栏")
-            networkRequest()
+        setContent {
+            MonitorSampleTheme {
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    modifier = Modifier,
+                                    text = "Monitor"
+                                )
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues = innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp),
+                            onClick = {
+                                networkRequest()
+                                showToast(msg = "已发起请求，请查看消息通知栏")
+                            }
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = "Network Request"
+                            )
+                        }
+                    }
+                }
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
