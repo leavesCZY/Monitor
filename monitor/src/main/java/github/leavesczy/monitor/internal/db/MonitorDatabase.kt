@@ -2,10 +2,12 @@ package github.leavesczy.monitor.internal.db
 
 import android.content.Context
 import androidx.room.Database
+import androidx.room.ExperimentalRoomApi
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import github.leavesczy.monitor.internal.ContextProvider
+import java.util.concurrent.TimeUnit
 
 /**
  * @Author: leavesCZY
@@ -40,12 +42,17 @@ internal abstract class MonitorDatabase : RoomDatabase() {
                 }
             }
 
+        @OptIn(ExperimentalRoomApi::class)
         private fun createDb(context: Context): MonitorDatabase {
             return Room.databaseBuilder(
                 context,
                 MonitorDatabase::class.java,
                 MONITOR_DATABASE_NAME
-            ).fallbackToDestructiveMigration()
+            ).fallbackToDestructiveMigration(dropAllTables = true)
+                .setAutoCloseTimeout(
+                    autoCloseTimeout = 20,
+                    autoCloseTimeUnit = TimeUnit.SECONDS
+                )
                 .build()
         }
 

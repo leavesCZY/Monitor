@@ -1,18 +1,18 @@
 [versions]
-android-plugin = "8.9.0"
-kotlin-plugin = "2.1.10"
-google-ksp-plugin = "2.1.10-1.0.31"
+android-plugin = "8.9.2"
+kotlin-plugin = "2.1.20"
+google-ksp-plugin = "2.1.20-2.0.1"
 
 androidx-junit = "1.2.1"
 androidx-espresso = "3.6.1"
 androidx-appcompat = "1.7.0"
 androidx-activity = "1.10.1"
-androidx-room = "2.6.1"
+androidx-room = "2.7.1"
 androidx-paging = "3.3.6"
-androidx-compose-bom = "2025.02.00"
+androidx-compose-bom = "2025.04.01"
 
 google-material = "1.12.0"
-google-gson = "2.12.1"
+google-gson = "2.13.1"
 
 junit = "4.13.2"
 
