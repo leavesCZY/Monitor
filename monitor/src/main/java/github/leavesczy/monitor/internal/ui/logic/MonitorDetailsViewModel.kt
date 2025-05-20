@@ -44,12 +44,14 @@ internal class MonitorDetailsViewModel(
             tabTagList = emptyList()
         )
     )
+        private set
 
     var overviewPageViewState by mutableStateOf(
         value = MonitorDetailOverviewPageViewState(
             overview = emptyList()
         )
     )
+        private set
 
     var requestPageViewState by mutableStateOf(
         value = MonitorDetailRequestPageViewState(
@@ -57,6 +59,7 @@ internal class MonitorDetailsViewModel(
             formattedBody = ""
         )
     )
+        private set
 
     var responsePageViewState by mutableStateOf(
         value = MonitorDetailResponsePageViewState(
@@ -64,6 +67,7 @@ internal class MonitorDetailsViewModel(
             formattedBody = ""
         )
     )
+        private set
 
     init {
         viewModelScope.launch {

@@ -102,7 +102,7 @@ private fun MonitorPage(
                 .fillMaxSize()
                 .padding(paddingValues = innerPadding),
             state = rememberLazyListState(),
-            contentPadding = PaddingValues(bottom = 60.dp)
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
             items(
                 count = monitorLazyPagingItems.itemCount,
@@ -149,16 +149,16 @@ private fun MonitorItem(monitor: Monitor, onClick: (Monitor) -> Unit) {
     val titleTextStyle = TextStyle(
         fontSize = 17.sp,
         lineHeight = 19.sp,
-        color = colorResource(id = titleColor),
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Medium,
+        color = colorResource(id = titleColor)
     )
     val subtitleTextStyle = TextStyle(
         fontSize = 14.sp,
         lineHeight = 16.sp,
-        color = colorResource(id = subtitleColor),
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal
+        fontWeight = FontWeight.Normal,
+        color = colorResource(id = subtitleColor)
     )
     Column(
         modifier = Modifier

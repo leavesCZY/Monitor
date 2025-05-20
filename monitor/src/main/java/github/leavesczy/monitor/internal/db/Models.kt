@@ -312,11 +312,11 @@ private fun formatXml(xml: String): String {
             transform(domSource, result)
         }
         writer.toString()
-    } catch (e: SAXParseException) {
+    } catch (_: SAXParseException) {
         xml
-    } catch (io: IOException) {
+    } catch (_: IOException) {
         xml
-    } catch (t: TransformerException) {
+    } catch (_: TransformerException) {
         xml
     }
 }

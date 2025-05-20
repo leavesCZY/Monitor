@@ -23,9 +23,9 @@ internal class MonitorViewModel : ViewModel() {
     fun getMonitors(): Flow<PagingData<Monitor>> =
         Pager(
             config = PagingConfig(
-                initialLoadSize = 20,
                 pageSize = 20,
-                prefetchDistance = 5
+                initialLoadSize = 30,
+                prefetchDistance = 10
             ),
             pagingSourceFactory = {
                 MonitorDatabase.instance.monitorDao.queryMonitors()

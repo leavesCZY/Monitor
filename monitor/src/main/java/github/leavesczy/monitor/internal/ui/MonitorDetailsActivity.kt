@@ -374,10 +374,8 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
         modifier = Modifier
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 20.dp,
-            top = 15.dp,
-            end = 20.dp,
-            bottom = 60.dp
+            horizontal = 20.dp,
+            vertical = 15.dp
         )
     ) {
         items(
@@ -400,10 +398,8 @@ private fun MonitorDetailsPage(
         modifier = Modifier
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 20.dp,
-            top = 15.dp,
-            end = 20.dp,
-            bottom = 60.dp
+            horizontal = 20.dp,
+            vertical = 15.dp
         )
     ) {
         items(

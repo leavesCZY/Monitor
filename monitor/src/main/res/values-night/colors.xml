@@ -8,7 +8,7 @@
     <color name="monitor_http_status_requesting_subtitle">#99FFFFFF</color>
     <color name="monitor_http_status_successful_title">#DEFFFFFF</color>
     <color name="monitor_http_status_successful_subtitle">#99FFFFFF</color>
-    <color name="monitor_http_status_unsuccessful_title">#FFEB6847</color>
+    <color name="monitor_http_status_unsuccessful_title">#FFEC407A</color>
     <color name="monitor_http_status_unsuccessful_subtitle">#66FFFFFF</color>
     <color name="monitor_http_body">#DEFFFFFF</color>
 </resources>
