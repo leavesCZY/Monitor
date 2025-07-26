@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -18,12 +21,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-        freeCompilerArgs += setOf(
-            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-            "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
-        )
+    tasks.withType<KotlinJvmCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            optIn.addAll(
+                setOf(
+                    "androidx.paging.ExperimentalPagingApi",
+                    "androidx.room.ExperimentalRoomApi",
+                    "kotlinx.coroutines.DelicateCoroutinesApi"
+                )
+            )
+        }
     }
     buildFeatures {
         compose = true
@@ -111,5 +119,15 @@ if (signingKeyId != null
     }
     signing {
         sign(publishing.publications["release"])
+    }
+} else {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
+            }
+        }
     }
 }

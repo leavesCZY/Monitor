@@ -1,5 +1,3 @@
-@file:OptIn(DelicateCoroutinesApi::class)
-
 package github.leavesczy.monitor.internal
 
 import android.app.Application
@@ -14,7 +12,6 @@ import androidx.core.app.NotificationManagerCompat
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.internal.db.MonitorDatabase
 import github.leavesczy.monitor.internal.ui.MonitorActivity
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job

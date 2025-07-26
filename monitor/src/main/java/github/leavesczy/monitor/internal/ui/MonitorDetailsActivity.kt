@@ -1,20 +1,24 @@
 package github.leavesczy.monitor.internal.ui
 
 import android.os.Bundle
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -23,12 +27,9 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
@@ -43,15 +44,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.monitor.R
@@ -93,6 +92,7 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContent {
             MonitorTheme {
@@ -101,17 +101,12 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
                     overviewPageViewState = monitorDetailsViewModel.overviewPageViewState,
                     requestPageViewState = monitorDetailsViewModel.requestPageViewState,
                     responsePageViewState = monitorDetailsViewModel.responsePageViewState,
-                    onClickBack = ::onClickBack,
                     copyText = monitorDetailsViewModel::copyText,
                     shareAsText = monitorDetailsViewModel::shareAsText,
                     shareAsFile = monitorDetailsViewModel::shareAsFile
                 )
             }
         }
-    }
-
-    private fun onClickBack() {
-        finish()
     }
 
 }
@@ -122,7 +117,6 @@ private fun MonitorDetailsPage(
     overviewPageViewState: MonitorDetailOverviewPageViewState,
     requestPageViewState: MonitorDetailRequestPageViewState,
     responsePageViewState: MonitorDetailResponsePageViewState,
-    onClickBack: () -> Unit,
     copyText: () -> Unit,
     shareAsText: () -> Unit,
     shareAsFile: () -> Unit
@@ -130,10 +124,12 @@ private fun MonitorDetailsPage(
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
+        containerColor = MonitorTheme.colorScheme.c_FFFFFFFF_FF101010.color,
+        contentColor = Color.Transparent,
+        contentWindowInsets = WindowInsets.navigationBars,
         topBar = {
             MonitorDetailsTopBar(
                 title = mainPageViewState.title,
-                onClickBack = onClickBack,
                 copyText = copyText,
                 shareAsText = shareAsText,
                 shareAsFile = shareAsFile
@@ -162,7 +158,10 @@ private fun MonitorDetailsPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(weight = 1f),
-                state = pagerState
+                state = pagerState,
+                key = {
+                    mainPageViewState.tabTagList[it]
+                }
             ) {
                 when (it) {
                     0 -> {
@@ -177,7 +176,7 @@ private fun MonitorDetailsPage(
                         SelectionContainer {
                             MonitorDetailsPage(
                                 headers = requestPageViewState.headers,
-                                bodyFormat = requestPageViewState.formattedBody
+                                bodyFormatted = requestPageViewState.bodyFormatted
                             )
                         }
                     }
@@ -186,7 +185,7 @@ private fun MonitorDetailsPage(
                         SelectionContainer {
                             MonitorDetailsPage(
                                 headers = responsePageViewState.headers,
-                                bodyFormat = responsePageViewState.formattedBody
+                                bodyFormatted = responsePageViewState.bodyFormatted
                             )
                         }
                     }
@@ -199,7 +198,6 @@ private fun MonitorDetailsPage(
 @Composable
 private fun MonitorDetailsTopBar(
     title: String,
-    onClickBack: () -> Unit,
     copyText: () -> Unit,
     shareAsText: () -> Unit,
     shareAsFile: () -> Unit
@@ -207,64 +205,75 @@ private fun MonitorDetailsTopBar(
     var menuExpanded by remember {
         mutableStateOf(value = false)
     }
-    CenterAlignedTopAppBar(
-        modifier = Modifier,
-        title = {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = title,
-                fontSize = 18.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                content = {
-                    Icon(
-                        modifier = Modifier
-                            .size(size = 24.dp),
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
-                },
-                onClick = onClickBack
-            )
-        },
-        actions = {
-            IconButton(
-                content = {
-                    Icon(
-                        modifier = Modifier
-                            .size(size = 24.dp),
-                        imageVector = Icons.Filled.Share,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    menuExpanded = true
-                }
-            )
-            Box(
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .background(color = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color)
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val onBackPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+            Icon(
                 modifier = Modifier
-                    .padding(end = 10.dp)
-            ) {
-                TopBarDropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = {
-                        menuExpanded = false
+                    .size(size = 24.dp)
+                    .clickable {
+                        onBackPressedDispatcher?.onBackPressed()
                     },
-                    copyText = copyText,
-                    shareAsText = shareAsText,
-                    shareAsFile = shareAsFile
-                )
-            }
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                tint = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
+                contentDescription = null
+            )
+            Text(
+                modifier = Modifier
+                    .weight(weight = 1f)
+                    .padding(horizontal = 16.dp),
+                text = title,
+                fontSize = 17.sp,
+                lineHeight = 19.sp,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Medium,
+                color = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color
+            )
+            Icon(
+                modifier = Modifier
+                    .size(size = 24.dp)
+                    .clickable(onClick = {
+                        menuExpanded = true
+                    }),
+                imageVector = Icons.Filled.Share,
+                tint = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
+                contentDescription = null
+            )
         }
-    )
+        Box(
+            modifier = Modifier
+                .align(alignment = Alignment.TopEnd)
+                .padding(end = 10.dp)
+        ) {
+            TopBarDropdownMenu(
+                modifier = Modifier,
+                expanded = menuExpanded,
+                onDismissRequest = {
+                    menuExpanded = false
+                },
+                copyText = copyText,
+                shareAsText = shareAsText,
+                shareAsFile = shareAsFile
+            )
+        }
+    }
 }
 
 @Composable
 private fun TopBarDropdownMenu(
+    modifier: Modifier,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     copyText: () -> Unit,
@@ -272,24 +281,19 @@ private fun TopBarDropdownMenu(
     shareAsFile: () -> Unit
 ) {
     DropdownMenu(
-        modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.background),
+        modifier = modifier
+            .background(color = MonitorTheme.colorScheme.c_FFFFFFFF_FF101010.color),
         expanded = expanded,
         onDismissRequest = onDismissRequest
     ) {
-        val textStyle = TextStyle(
-            fontSize = 18.sp,
-            color = if (isSystemInDarkTheme()) {
-                Color.White
-            } else {
-                Color.Black
-            }
-        )
         DropdownMenuItem(
             text = {
                 Text(
                     text = stringResource(id = R.string.monitor_copy),
-                    style = textStyle
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
                 )
             },
             onClick = {
@@ -301,7 +305,10 @@ private fun TopBarDropdownMenu(
             text = {
                 Text(
                     text = stringResource(id = R.string.monitor_share_as_text),
-                    style = textStyle
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
                 )
             },
             onClick = {
@@ -313,7 +320,10 @@ private fun TopBarDropdownMenu(
             text = {
                 Text(
                     text = stringResource(id = R.string.monitor_share_as_file),
-                    style = textStyle
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
                 )
             },
             onClick = {
@@ -333,6 +343,8 @@ private fun ScrollableTabRow(
     TabRow(
         modifier = Modifier
             .fillMaxWidth(),
+        containerColor = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color,
+        contentColor = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
         selectedTabIndex = selectedTabIndex,
         indicator = { tabPositions ->
             if (selectedTabIndex < tabPositions.size) {
@@ -347,7 +359,7 @@ private fun ScrollableTabRow(
 
         }
     ) {
-        tagList.forEachIndexed { index, item ->
+        tagList.forEachIndexed { index, tag ->
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -355,13 +367,15 @@ private fun ScrollableTabRow(
                         scrollToPage(index)
                     }
                     .padding(vertical = 12.dp),
-                text = item,
-                fontSize = 15.sp,
+                text = tag,
+                fontSize = 14.sp,
+                lineHeight = 15.sp,
                 textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
                 color = if (index == selectedTabIndex) {
-                    colorResource(id = R.color.monitor_top_bar_tab_text_selected)
+                    MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color
                 } else {
-                    colorResource(id = R.color.monitor_top_bar_tab_text_unselected)
+                    MonitorTheme.colorScheme.c_DEFFFFFF_DEFFFFFF.color
                 }
             )
         }
@@ -374,12 +388,22 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
         modifier = Modifier
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            horizontal = 20.dp,
-            vertical = 15.dp
+            start = 20.dp,
+            top = 16.dp,
+            end = 20.dp,
+            bottom = 50.dp
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(
+            space = 6.dp,
+            alignment = Alignment.Top
         )
     ) {
         items(
             items = pageViewState.overview,
+            key = {
+                "header-" + it.name
+            },
             contentType = {
                 "MonitorPairItem"
             }
@@ -392,41 +416,55 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
 @Composable
 private fun MonitorDetailsPage(
     headers: List<MonitorPair>,
-    bodyFormat: String
+    bodyFormatted: String
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
         contentPadding = PaddingValues(
-            horizontal = 20.dp,
-            vertical = 15.dp
+            start = 20.dp,
+            top = 16.dp,
+            end = 20.dp,
+            bottom = 50.dp
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(
+            space = 6.dp,
+            alignment = Alignment.Top
         )
     ) {
         items(
             items = headers,
+            key = {
+                "header-" + it.name
+            },
             contentType = {
                 "MonitorPairItem"
             }
         ) {
             MonitorPairItem(pair = it)
         }
-        if (bodyFormat.isNotBlank()) {
+        if (bodyFormatted.isNotBlank()) {
             item(
-                contentType = "bodyFormat"
+                key = "bodyFormatted",
+                contentType = "bodyFormatted"
             ) {
-                SelectionContainer {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 30.dp),
-                        text = bodyFormat,
-                        fontSize = 16.sp,
-                        lineHeight = 18.sp,
-                        fontFamily = FontFamily.Default,
-                        fontWeight = FontWeight.Normal,
-                        color = colorResource(id = R.color.monitor_http_body)
-                    )
-                }
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = if (headers.isEmpty()) {
+                                0.dp
+                            } else {
+                                24.dp
+                            }
+                        ),
+                    text = bodyFormatted,
+                    fontSize = 15.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
+                )
             }
         }
     }
@@ -436,30 +474,27 @@ private fun MonitorDetailsPage(
 private fun MonitorPairItem(pair: MonitorPair) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 3.dp),
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(space = 10.dp),
         verticalAlignment = Alignment.Top
     ) {
         Text(
             modifier = Modifier
-                .weight(weight = 3.5f)
-                .padding(end = 10.dp),
+                .weight(weight = 3.4f),
             text = pair.name,
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.Medium,
             fontSize = 15.sp,
-            lineHeight = 18.sp,
-            color = colorResource(id = R.color.monitor_http_status_successful_title)
+            lineHeight = 17.sp,
+            fontWeight = FontWeight.Medium,
+            color = MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
         )
         Text(
             modifier = Modifier
                 .weight(weight = 5f),
             text = pair.value,
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
             lineHeight = 16.sp,
-            color = colorResource(id = R.color.monitor_http_status_successful_subtitle)
+            fontWeight = FontWeight.Normal,
+            color = MonitorTheme.colorScheme.c_B3001018_B3FFFFFF.color
         )
     }
 }

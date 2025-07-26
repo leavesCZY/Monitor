@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -16,8 +19,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+    tasks.withType<KotlinJvmCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
     publishing {
         singleVariant("release") {
@@ -92,5 +97,15 @@ if (signingKeyId != null
     }
     signing {
         sign(publishing.publications["release"])
+    }
+} else {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
+            }
+        }
     }
 }

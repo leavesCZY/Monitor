@@ -21,8 +21,12 @@ import java.io.EOFException
  */
 class MonitorInterceptor : Interceptor {
 
-    @Volatile
-    private var notificationHandleInitialized = false
+    private companion object {
+
+        @Volatile
+        var notificationHandleInitialized = false
+
+    }
 
     override fun intercept(chain: Interceptor.Chain): Response {
         initNotificationHandlerIfNeed()
@@ -172,47 +176,47 @@ class MonitorInterceptor : Interceptor {
         MonitorDatabase.instance.monitorDao.updateMonitor(monitor = monitor)
     }
 
-}
-
-internal fun Buffer.isProbablyUtf8(): Boolean {
-    try {
-        val prefix = Buffer()
-        val byteCount = buffer.size.coerceAtMost(64)
-        buffer.copyTo(prefix, 0, byteCount)
-        for (i in 0 until 16) {
-            if (prefix.exhausted()) {
-                break
+    private fun Buffer.isProbablyUtf8(): Boolean {
+        try {
+            val prefix = Buffer()
+            val byteCount = size.coerceAtMost(maximumValue = 64)
+            copyTo(out = prefix, offset = 0, byteCount = byteCount)
+            repeat(times = 16) {
+                if (prefix.exhausted()) {
+                    return@repeat
+                }
+                val codePoint = prefix.readUtf8CodePoint()
+                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
+                    return false
+                }
             }
-            val codePoint = prefix.readUtf8CodePoint()
-            if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
-                return false
-            }
-        }
-        return true
-    } catch (_: EOFException) {
-        return false
-    }
-}
-
-internal fun Headers.bodyGzipped(): Boolean {
-    return this["Content-Encoding"].equals(other = "gzip", ignoreCase = true)
-}
-
-internal fun Headers.bodyHasUnknownEncoding(): Boolean {
-    val contentEncoding = this["Content-Encoding"] ?: return false
-    return !contentEncoding.equals("identity", ignoreCase = true) &&
-            !contentEncoding.equals("gzip", ignoreCase = true)
-}
-
-internal fun Response.getNativeSource(): Buffer {
-    val source = body!!.source()
-    source.request(Long.MAX_VALUE)
-    var buffer = source.buffer
-    if (headers.bodyGzipped()) {
-        GzipSource(source = buffer.clone()).use { responseBody ->
-            buffer = Buffer()
-            buffer.writeAll(source = responseBody)
+            return true
+        } catch (_: EOFException) {
+            return false
         }
     }
-    return buffer
+
+    private fun Headers.bodyGzipped(): Boolean {
+        return this["Content-Encoding"].equals(other = "gzip", ignoreCase = true)
+    }
+
+    private fun Headers.bodyHasUnknownEncoding(): Boolean {
+        val contentEncoding = this["Content-Encoding"] ?: return false
+        return !contentEncoding.equals("identity", ignoreCase = true) &&
+                !contentEncoding.equals("gzip", ignoreCase = true)
+    }
+
+    private fun Response.getNativeSource(): Buffer {
+        val source = body!!.source()
+        source.request(Long.MAX_VALUE)
+        var buffer = source.buffer
+        if (headers.bodyGzipped()) {
+            GzipSource(source = buffer.clone()).use { responseBody ->
+                buffer = Buffer()
+                buffer.writeAll(source = responseBody)
+            }
+        }
+        return buffer
+    }
+
 }

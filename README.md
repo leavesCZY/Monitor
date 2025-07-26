@@ -6,7 +6,7 @@
 
 ```kotlin
 val okHttpClient = OkHttpClient.Builder()
-    .addInterceptor(MonitorInterceptor())
+    .addNetworkInterceptor(interceptor = MonitorInterceptor())
     .build()
 ```
 
