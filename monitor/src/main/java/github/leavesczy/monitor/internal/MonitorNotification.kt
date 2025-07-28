@@ -1,5 +1,3 @@
-@file:OptIn(DelicateCoroutinesApi::class)
-
 package github.leavesczy.monitor.internal
 
 import android.app.Application
@@ -14,7 +12,6 @@ import androidx.core.app.NotificationManagerCompat
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.internal.db.MonitorDatabase
 import github.leavesczy.monitor.internal.ui.MonitorActivity
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -28,7 +25,7 @@ import kotlinx.coroutines.launch
  * @Date: 2020/11/8 14:44
  * @Desc:
  */
-internal object MonitorNotificationHandler {
+internal object MonitorNotification {
 
     private var monitorObserver: Job? = null
 
@@ -53,7 +50,7 @@ internal object MonitorNotificationHandler {
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         monitorObserver?.cancel()
         monitorObserver = GlobalScope.launch(context = Dispatchers.Default) {
-            val queryFlow = MonitorDatabase.instance.monitorDao.queryMonitors(limit = 6)
+            val queryFlow = MonitorDatabase.instance.monitorDao.queryMonitors(limit = 5)
             queryFlow
                 .map {
                     it.map { monitor ->
@@ -108,12 +105,7 @@ internal object MonitorNotificationHandler {
         }
         val intent = Intent(context, MonitorActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(
-            context,
-            100,
-            intent,
-            flag
-        )
+        return PendingIntent.getActivity(context, 100, intent, flag)
     }
 
 }

@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
             addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
-            addNetworkInterceptor(MonitorInterceptor())
+            addNetworkInterceptor(interceptor = MonitorInterceptor())
         }.build()
     }
 
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                         Button(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 20.dp),
+                                .padding(horizontal = 40.dp),
                             onClick = {
                                 networkRequest()
                                 showToast(msg = "已发起请求，请查看消息通知栏")
@@ -135,12 +135,15 @@ class MainActivity : AppCompatActivity() {
         apiService.post(body = Data(random = "posted")).enqueue(callback)
         apiService.put(body = Data(random = "put")).enqueue(callback)
         apiService.delete().enqueue(callback)
-        apiService.deny().enqueue(callback)
-        apiService.gzip().enqueue(callback)
-        apiService.xml().enqueue(callback)
-        apiService.utf8().enqueue(callback)
         apiService.delay(seconds = 2).enqueue(callback)
+        apiService.deny().enqueue(callback)
+        apiService.status(code = 304).enqueue(callback)
         apiService.stream(lines = 2).enqueue(callback)
+        apiService.streamBytes(bytes = 2).enqueue(callback)
+        apiService.image(accept = "image/webp").enqueue(callback)
+        apiService.gzip().enqueue(callback)
+        apiService.utf8().enqueue(callback)
+        apiService.xml().enqueue(callback)
     }
 
 }

@@ -6,7 +6,7 @@
 
 ```kotlin
 val okHttpClient = OkHttpClient.Builder()
-    .addInterceptor(MonitorInterceptor())
+    .addNetworkInterceptor(interceptor = MonitorInterceptor())
     .build()
 ```
 
@@ -30,4 +30,4 @@ dependencies {
 }
 ```
 
-![](https://github.com/leavesCZY/Monitor/assets/30774063/9054fcf3-947b-46dc-a765-ce620993bd11)
+![](https://github.com/user-attachments/assets/87308488-fe02-47bd-8f81-01470ddb9de8)

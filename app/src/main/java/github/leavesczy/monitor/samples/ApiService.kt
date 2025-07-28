@@ -16,17 +16,17 @@ import retrofit2.http.Path
  */
 interface ApiService {
 
-    @GET("/get/{code}")
-    fun get(@Path("code") code: Int): Call<Void>
-
     @GET("/get")
     fun get(): Call<Void>
 
-    @POST("/post")
-    fun post(@Body body: Data): Call<Void>
+    @GET("/get/{code}")
+    fun get(@Path("code") code: Int): Call<Void>
 
     @POST("/post")
     fun post(): Call<Void>
+
+    @POST("/post")
+    fun post(@Body body: Data): Call<Void>
 
     @PUT("/put")
     fun put(@Body body: Data): Call<Void>

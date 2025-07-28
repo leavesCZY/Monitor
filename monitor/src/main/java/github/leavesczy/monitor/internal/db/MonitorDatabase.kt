@@ -2,7 +2,6 @@ package github.leavesczy.monitor.internal.db
 
 import android.content.Context
 import androidx.room.Database
-import androidx.room.ExperimentalRoomApi
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -16,7 +15,7 @@ import java.util.concurrent.TimeUnit
  */
 @Database(
     entities = [Monitor::class],
-    version = 40
+    version = 42
 )
 @TypeConverters(value = [MonitorTypeConverter::class])
 internal abstract class MonitorDatabase : RoomDatabase() {
@@ -25,7 +24,7 @@ internal abstract class MonitorDatabase : RoomDatabase() {
 
         private const val MONITOR_DATABASE_NAME = "Monitor"
 
-        const val MONITOR_TABLE_NAME = "MonitorHttp"
+        const val MONITOR_TABLE_NAME = "Monitor"
 
         private var monitorDatabase: MonitorDatabase? = null
 
@@ -42,7 +41,6 @@ internal abstract class MonitorDatabase : RoomDatabase() {
                 }
             }
 
-        @OptIn(ExperimentalRoomApi::class)
         private fun createDb(context: Context): MonitorDatabase {
             return Room.databaseBuilder(
                 context,
@@ -50,7 +48,7 @@ internal abstract class MonitorDatabase : RoomDatabase() {
                 MONITOR_DATABASE_NAME
             ).fallbackToDestructiveMigration(dropAllTables = true)
                 .setAutoCloseTimeout(
-                    autoCloseTimeout = 20,
+                    autoCloseTimeout = 120,
                     autoCloseTimeUnit = TimeUnit.SECONDS
                 )
                 .build()

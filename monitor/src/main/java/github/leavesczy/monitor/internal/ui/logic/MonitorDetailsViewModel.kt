@@ -15,9 +15,11 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.monitor.R
+import github.leavesczy.monitor.internal.db.Monitor
 import github.leavesczy.monitor.internal.db.MonitorDatabase
-import github.leavesczy.monitor.internal.db.buildOverview
-import github.leavesczy.monitor.internal.db.buildShareText
+import github.leavesczy.monitor.internal.db.MonitorPair
+import github.leavesczy.monitor.internal.db.MonitorStatus
+import github.leavesczy.monitor.internal.db.formatBytes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -56,7 +58,7 @@ internal class MonitorDetailsViewModel(
     var requestPageViewState by mutableStateOf(
         value = MonitorDetailRequestPageViewState(
             headers = emptyList(),
-            formattedBody = ""
+            bodyFormatted = ""
         )
     )
         private set
@@ -64,7 +66,7 @@ internal class MonitorDetailsViewModel(
     var responsePageViewState by mutableStateOf(
         value = MonitorDetailResponsePageViewState(
             headers = emptyList(),
-            formattedBody = ""
+            bodyFormatted = ""
         )
     )
         private set
@@ -87,11 +89,11 @@ internal class MonitorDetailsViewModel(
                     )
                     requestPageViewState = MonitorDetailRequestPageViewState(
                         headers = it.requestHeaders,
-                        formattedBody = it.requestBodyFormat
+                        bodyFormatted = it.requestBodyFormatted
                     )
                     responsePageViewState = MonitorDetailResponsePageViewState(
                         headers = it.responseHeaders,
-                        formattedBody = it.responseBodyFormat
+                        bodyFormatted = it.responseBodyFormatted
                     )
                 }
         }
@@ -140,7 +142,7 @@ internal class MonitorDetailsViewModel(
                 val shareText = queryMonitorShareText()
                 val shareFile = createShareFile()
                 shareFile.writeText(text = shareText, charset = Charsets.UTF_8)
-                val authority = application.applicationInfo.packageName + ".monitor.file.provider"
+                val authority = application.applicationInfo.packageName + ".monitorFileProvider"
                 val shareFileUri =
                     FileProvider.getUriForFile(application, authority, shareFile)
                 val monitor = application.getString(R.string.monitor_monitor)
@@ -176,6 +178,85 @@ internal class MonitorDetailsViewModel(
 
     private suspend fun queryMonitorShareText(): String {
         return MonitorDatabase.instance.monitorDao.queryMonitor(id = monitorId).buildShareText()
+    }
+
+    private fun Monitor.buildShareText(): String {
+        return buildString {
+            append(buildOverview().format())
+            append("\n\n")
+            append("----------Request----------")
+            append("\n\n")
+            append(requestHeaders.format())
+            if (requestBodyFormatted.isNotBlank()) {
+                append("\n\n")
+                append(requestBodyFormatted)
+            }
+            append("\n\n")
+            append("----------Response----------")
+            append("\n\n")
+            append(responseHeaders.format())
+            append("\n\n")
+            append(responseBodyFormatted)
+        }
+    }
+
+    private fun Monitor.buildOverview(): List<MonitorPair> {
+        val responseSummaryText = when (httpStatus) {
+            MonitorStatus.Requesting -> {
+                ""
+            }
+
+            MonitorStatus.Complete -> {
+                "$responseCode $responseMessage"
+            }
+
+            MonitorStatus.Failed -> {
+                error ?: ""
+            }
+        }
+        return buildList {
+            add(MonitorPair(name = "Url", value = urlFormatted))
+            add(MonitorPair(name = "Method", value = method))
+            add(MonitorPair(name = "Protocol", value = protocol))
+            add(MonitorPair(name = "State", value = httpStatus.toString()))
+            add(MonitorPair(name = "Response", value = responseSummaryText))
+            add(MonitorPair(name = "TlsVersion", value = responseTlsVersion))
+            add(MonitorPair(name = "CipherSuite", value = responseCipherSuite))
+            add(MonitorPair(name = "Request Time", value = getDateYMDHMSS(date = requestTime)))
+            add(MonitorPair(name = "Response Time", value = getDateYMDHMSS(date = responseTime)))
+            add(MonitorPair(name = "Duration", value = requestDurationFormatted))
+            add(
+                MonitorPair(
+                    name = "Request Size",
+                    value = formatBytes(bytes = requestContentLength)
+                )
+            )
+            add(
+                MonitorPair(
+                    name = "Response Size",
+                    value = formatBytes(bytes = responseContentLength)
+                )
+            )
+            add(MonitorPair(name = "Total Size", value = totalSizeFormatted))
+        }
+    }
+
+    private fun getDateYMDHMSS(date: Long): String {
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS", Locale.getDefault())
+        return simpleDateFormat.format(Date(date))
+    }
+
+    private fun List<MonitorPair>.format(): String {
+        return buildString {
+            this@format.forEachIndexed { index, pair ->
+                append(pair.name)
+                append(" : ")
+                append(pair.value)
+                if (index != this@format.size - 1) {
+                    append("\n")
+                }
+            }
+        }
     }
 
     private suspend fun showToast(@StringRes resId: Int) {

@@ -10,7 +10,7 @@
     <string name="monitor_share_as_text">share as text</string>
     <string name="monitor_share_as_file">share as file</string>
     <string name="monitor_notification_channel_id">Monitor</string>
-    <string name="monitor_notification_channel_name">Http Monitor</string>
+    <string name="monitor_notification_channel_name">Monitor Http</string>
     <string name="monitor_notification_channel_description">Automatically record http requests</string>
-    <string name="monitor_notification_title">Recording Http Activity</string>
+    <string name="monitor_notification_title">Monitor Http</string>
 </resources>

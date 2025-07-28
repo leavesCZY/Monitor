@@ -2,39 +2,48 @@ package github.leavesczy.monitor.internal.ui
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -54,22 +63,18 @@ internal class MonitorActivity : AppCompatActivity() {
     private val monitorViewModel by viewModels<MonitorViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContent {
             MonitorTheme {
                 val pagingItems = monitorViewModel.getMonitors().collectAsLazyPagingItems()
                 MonitorPage(
                     monitorLazyPagingItems = pagingItems,
-                    onClickBack = ::onClickBack,
                     onClickClear = monitorViewModel::onClickClear,
                     onClickMonitorItem = ::onClickMonitorItem
                 )
             }
         }
-    }
-
-    private fun onClickBack() {
-        finish()
     }
 
     private fun onClickMonitorItem(monitor: Monitor) {
@@ -83,18 +88,17 @@ internal class MonitorActivity : AppCompatActivity() {
 @Composable
 private fun MonitorPage(
     monitorLazyPagingItems: LazyPagingItems<Monitor>,
-    onClickBack: () -> Unit,
     onClickClear: () -> Unit,
     onClickMonitorItem: (Monitor) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
+        containerColor = MonitorTheme.colorScheme.c_FFFFFFFF_FF101010.color,
+        contentColor = Color.Transparent,
+        contentWindowInsets = WindowInsets.navigationBars,
         topBar = {
-            MonitorTopBar(
-                onClickBack = onClickBack,
-                onClickClear = onClickClear
-            )
+            MonitorTopBar(onClickClear = onClickClear)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -110,11 +114,15 @@ private fun MonitorPage(
                     it.id
                 },
                 contentType = monitorLazyPagingItems.itemContentType {
-                    "monitor"
+                    "MonitorItem"
                 }
             ) { index ->
-                monitorLazyPagingItems[index]?.let {
-                    MonitorItem(monitor = it, onClick = onClickMonitorItem)
+                val monitor = monitorLazyPagingItems[index]
+                if (monitor != null) {
+                    MonitorItem(
+                        monitor = monitor,
+                        onClick = onClickMonitorItem
+                    )
                 }
             }
         }
@@ -122,45 +130,74 @@ private fun MonitorPage(
 }
 
 @Composable
-private fun MonitorItem(monitor: Monitor, onClick: (Monitor) -> Unit) {
-    val titleColor: Int
-    val subtitleColor: Int
-    when (monitor.httpStatus) {
+private fun MonitorTopBar(onClickClear: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .background(color = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color)
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .padding(horizontal = 14.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val onBackPressedDispatcher =
+            LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+        Icon(
+            modifier = Modifier
+                .size(size = 24.dp)
+                .clickable {
+                    onBackPressedDispatcher?.onBackPressed()
+                },
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            tint = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
+            contentDescription = null
+        )
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 16.dp),
+            text = stringResource(id = R.string.monitor_monitor),
+            fontSize = 19.sp,
+            lineHeight = 20.sp,
+            fontWeight = FontWeight.Medium,
+            color = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color
+        )
+        Spacer(
+            modifier = Modifier
+                .weight(weight = 1f)
+        )
+        Icon(
+            modifier = Modifier
+                .size(size = 24.dp)
+                .clickable(onClick = onClickClear),
+            imageVector = Icons.Filled.DeleteOutline,
+            tint = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+private fun MonitorItem(
+    monitor: Monitor,
+    onClick: (Monitor) -> Unit
+) {
+    val titleColor = when (monitor.httpStatus) {
         MonitorStatus.Requesting -> {
-            titleColor = R.color.monitor_http_status_requesting_title
-            subtitleColor = R.color.monitor_http_status_requesting_subtitle
+            MonitorTheme.colorScheme.c_B3001018_B3FFFFFF.color
         }
 
         MonitorStatus.Complete -> {
             if (monitor.responseCode == 200) {
-                titleColor = R.color.monitor_http_status_successful_title
-                subtitleColor = R.color.monitor_http_status_successful_subtitle
+                MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
             } else {
-                titleColor = R.color.monitor_http_status_unsuccessful_title
-                subtitleColor = R.color.monitor_http_status_unsuccessful_subtitle
+                MonitorTheme.colorScheme.c_FFFF545C_FFFA525A.color
             }
         }
 
         MonitorStatus.Failed -> {
-            titleColor = R.color.monitor_http_status_unsuccessful_title
-            subtitleColor = R.color.monitor_http_status_unsuccessful_subtitle
+            MonitorTheme.colorScheme.c_FFFF545C_FFFA525A.color
         }
     }
-    val titleTextStyle = TextStyle(
-        fontSize = 17.sp,
-        lineHeight = 19.sp,
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        color = colorResource(id = titleColor)
-    )
-    val subtitleTextStyle = TextStyle(
-        fontSize = 14.sp,
-        lineHeight = 16.sp,
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        color = colorResource(id = subtitleColor)
-    )
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -170,13 +207,15 @@ private fun MonitorItem(monitor: Monitor, onClick: (Monitor) -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 14.dp, end = 14.dp, top = 10.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(space = 6.dp),
+            verticalAlignment = Alignment.Top
         ) {
-            Text(
+            MonitorItemTitle(
                 modifier = Modifier
-                    .width(width = 40.dp),
-                text = monitor.responseCodeFormat,
-                style = titleTextStyle
+                    .widthIn(min = 30.dp),
+                text = monitor.responseCodeFormatted,
+                color = titleColor
             )
             Column(
                 modifier = Modifier
@@ -186,94 +225,85 @@ private fun MonitorItem(monitor: Monitor, onClick: (Monitor) -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(
+                    MonitorItemTitle(
                         modifier = Modifier
                             .weight(weight = 1f),
                         text = monitor.pathWithQuery,
-                        style = titleTextStyle
+                        color = titleColor
                     )
-                    Text(
+                    MonitorItemTitle(
                         modifier = Modifier,
                         text = monitor.id.toString(),
-                        style = titleTextStyle
+                        color = titleColor
                     )
                 }
-                Text(
+                MonitorItemSubtitle(
                     modifier = Modifier
-                        .padding(vertical = 3.dp),
-                    text = monitor.host,
-                    style = subtitleTextStyle
+                        .padding(vertical = 2.dp),
+                    text = monitor.host
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
+                    MonitorItemSubtitle(
                         modifier = Modifier,
-                        text = monitor.requestDateMDHMS,
-                        style = subtitleTextStyle
+                        text = monitor.requestTimeFormatted
                     )
-                    Text(
+                    MonitorItemSubtitle(
                         modifier = Modifier,
-                        text = monitor.requestDurationFormat,
-                        style = subtitleTextStyle
+                        text = monitor.requestDurationFormatted
                     )
-                    Text(
+                    MonitorItemSubtitle(
                         modifier = Modifier,
-                        text = monitor.totalSizeFormat,
-                        style = subtitleTextStyle
+                        text = monitor.totalSizeFormatted
                     )
                 }
             }
         }
-        HorizontalDivider(
+        Box(
             modifier = Modifier
+                .align(alignment = Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(top = 10.dp)
+                .height(height = 0.8.dp)
+                .background(color = MonitorTheme.colorScheme.c_FFEFF1F3_FF333333.color)
         )
     }
 }
 
 @Composable
-private fun MonitorTopBar(
-    onClickBack: () -> Unit,
-    onClickClear: () -> Unit
+private fun MonitorItemTitle(
+    modifier: Modifier,
+    text: String,
+    color: Color
 ) {
-    TopAppBar(
-        modifier = Modifier,
-        title = {
-            Text(
-                modifier = Modifier,
-                fontSize = 20.sp,
-                text = stringResource(id = R.string.monitor_monitor)
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                content = {
-                    Icon(
-                        modifier = Modifier
-                            .size(size = 24.dp),
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
-                },
-                onClick = onClickBack
-            )
-        },
-        actions = {
-            IconButton(
-                content = {
-                    Icon(
-                        modifier = Modifier
-                            .size(size = 24.dp),
-                        imageVector = Icons.Filled.DeleteOutline,
-                        contentDescription = null
-                    )
-                },
-                onClick = onClickClear
-            )
-        }
+    Text(
+        modifier = modifier,
+        text = text,
+        fontSize = 16.sp,
+        lineHeight = 18.sp,
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Start,
+        fontWeight = FontWeight.Bold,
+        color = color,
+        style = LocalTextStyle.current.copy(lineBreak = LineBreak.Paragraph)
+    )
+}
+
+@Composable
+private fun MonitorItemSubtitle(
+    modifier: Modifier,
+    text: String
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        textAlign = TextAlign.Start,
+        fontSize = 14.sp,
+        lineHeight = 15.sp,
+        fontWeight = FontWeight.Normal,
+        color = MonitorTheme.colorScheme.c_B3001018_B3FFFFFF.color
     )
 }
