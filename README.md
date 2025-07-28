@@ -1,11 +1,12 @@
-# Monitor [![Maven Central](https://img.shields.io/maven-central/v/io.github.leavesczy/monitor.svg)](https://central.sonatype.com/artifact/io.github.leavesczy/monitor)
+# Monitor
 
-一个适用于 OkHttp 和 Retrofit 的可视化抓包工具
+一个适用于 OkHttp / Retrofit 的可视化抓包工具
 
 只需为 OkHttpClient 添加 MonitorInterceptor，就会自动记录并缓存所有的网络请求信息，并提供可视化界面进行查看
 
 ```kotlin
-val okHttpClient = OkHttpClient.Builder()
+val okHttpClient = OkHttpClient
+    .Builder()
     .addNetworkInterceptor(interceptor = MonitorInterceptor())
     .build()
 ```
