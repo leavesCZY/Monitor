@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -52,8 +53,9 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral(automaticRelease = false)
+    publishToMavenCentral()
     signAllPublications()
+    configure(platform = AndroidSingleVariantLibrary())
     coordinates(
         groupId = "io.github.leavesczy",
         artifactId = "monitor",

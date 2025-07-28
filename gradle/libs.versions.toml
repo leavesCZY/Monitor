@@ -20,8 +20,8 @@ junit = "4.13.2"
 squareup-okHttp = "4.12.0"
 squareup-retrofit = "3.0.0"
 
-monitor-remote = "1.8.3"
-monitor-publishing = "1.8.3"
+monitor-remote = "1.8.4"
+monitor-publishing = "1.8.4"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
