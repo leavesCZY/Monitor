@@ -2,7 +2,6 @@ package github.leavesczy.monitor.internal.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -26,7 +25,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -136,24 +134,11 @@ private fun MonitorTopBar(onClickClear: () -> Unit) {
             .background(color = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color)
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(horizontal = 14.dp, vertical = 16.dp),
+            .padding(horizontal = 12.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val onBackPressedDispatcher =
-            LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-        Icon(
-            modifier = Modifier
-                .size(size = 24.dp)
-                .clickable {
-                    onBackPressedDispatcher?.onBackPressed()
-                },
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            tint = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
-            contentDescription = null
-        )
         Text(
-            modifier = Modifier
-                .padding(horizontal = 16.dp),
+            modifier = Modifier,
             text = stringResource(id = R.string.monitor_monitor),
             fontSize = 19.sp,
             lineHeight = 20.sp,

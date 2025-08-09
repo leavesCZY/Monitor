@@ -6,9 +6,14 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.androidx.room)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.maven.publish)
+    id("maven-publish")
+    id("signing")
 }
+
+val signingKeyId = properties["signing.keyId"]?.toString()
 
 android {
     namespace = "github.leavesczy.monitor"
@@ -36,6 +41,10 @@ android {
     buildFeatures {
         compose = true
     }
+    room {
+        generateKotlin = true
+        schemaDirectory("$projectDir/build/schemas")
+    }
 }
 
 dependencies {
@@ -52,38 +61,50 @@ dependencies {
     compileOnly(libs.squareup.okHttp)
 }
 
-mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
-    configure(platform = AndroidSingleVariantLibrary())
-    coordinates(
-        groupId = "io.github.leavesczy",
-        artifactId = "monitor",
-        version = libs.versions.monitor.publishing.get()
-    )
-    pom {
-        name = "Monitor"
-        description = "An Http inspector for OkHttp & Retrofit"
-        inceptionYear = "2025"
-        url = "https://github.com/leavesCZY/Monitor"
-        licenses {
-            license {
-                name = "The Apache License, Version 2.0"
-                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+if (signingKeyId == null) {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
             }
         }
-        developers {
-            developer {
-                id = "leavesCZY"
-                name = "leavesCZY"
-                url = "https://github.com/leavesCZY"
-            }
-        }
-        scm {
+    }
+} else {
+    mavenPublishing {
+        publishToMavenCentral()
+        signAllPublications()
+        configure(platform = AndroidSingleVariantLibrary())
+        coordinates(
+            groupId = "io.github.leavesczy",
+            artifactId = "monitor",
+            version = libs.versions.monitor.publishing.get()
+        )
+        pom {
+            name = "Monitor"
+            description = "An Http inspector for OkHttp & Retrofit"
+            inceptionYear = "2025"
             url = "https://github.com/leavesCZY/Monitor"
-            connection = "scm:git:git://github.com/leavesCZY/Monitor.git"
-            developerConnection = "scm:git:ssh://git@github.com/leavesCZY/Monitor.git"
+            licenses {
+                license {
+                    name = "The Apache License, Version 2.0"
+                    url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                }
+            }
+            developers {
+                developer {
+                    id = "leavesCZY"
+                    name = "leavesCZY"
+                    url = "https://github.com/leavesCZY"
+                }
+            }
+            scm {
+                url = "https://github.com/leavesCZY/Monitor"
+                connection = "scm:git:git://github.com/leavesCZY/Monitor.git"
+                developerConnection = "scm:git:ssh://git@github.com/leavesCZY/Monitor.git"
+            }
         }
     }
 }

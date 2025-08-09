@@ -13,6 +13,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            setUrl("https://jitpack.io")
+            content {
+                includeGroupByRegex("com.github.leavesCZY.*")
+            }
+        }
     }
 }
 
