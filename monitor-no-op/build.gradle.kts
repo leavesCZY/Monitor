@@ -14,7 +14,7 @@ val signingKeyId = properties["signing.keyId"]?.toString()
 
 android {
     namespace = "github.leavesczy.monitor"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         minSdk = 21
         consumerProguardFiles.add(File("consumer-rules.pro"))

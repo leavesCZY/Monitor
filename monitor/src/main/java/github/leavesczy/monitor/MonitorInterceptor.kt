@@ -134,9 +134,11 @@ class MonitorInterceptor : Interceptor {
             MonitorPair(name = it.first, value = it.second)
         }
         val body = response.body
-        val responseContentType = body.contentType()?.toString() ?: ""
-        var responseContentLength = body.contentLength()
-        val responseBody = if (!response.promisesBody() ||
+        val responseContentType = body?.contentType()?.toString() ?: ""
+        var responseContentLength = body?.contentLength() ?: 0L
+        val responseBody = if (body == null) {
+            null
+        } else if (!response.promisesBody() ||
             response.headers.bodyHasUnknownEncoding()
         ) {
             ""
