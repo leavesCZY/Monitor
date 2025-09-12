@@ -79,7 +79,7 @@ if (signingKeyId == null) {
         coordinates(
             groupId = "io.github.leavesczy",
             artifactId = "monitor",
-            version = libs.versions.monitor.publishing.get()
+            version = libs.versions.monitor.get()
         )
         pom {
             name = "Monitor"
