@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -82,9 +81,11 @@ internal object MonitorNotification {
             notificationManager.cancel(notificationId)
         } else {
             val builder = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.monitor_notification_icon)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentTitle(notificationTitle)
                 .setContentIntent(getContentIntent(context = context))
-                .setSmallIcon(R.drawable.monitor_notification_icon)
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(false)
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -98,14 +99,14 @@ internal object MonitorNotification {
     }
 
     private fun getContentIntent(context: Context): PendingIntent {
-        val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
         val intent = Intent(context, MonitorActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(context, 100, intent, flag)
+        return PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
 }
