@@ -1,16 +1,16 @@
 [versions]
-android-plugin = "8.13.2"
-kotlin-plugin = "2.2.21"
-google-ksp-plugin = "2.3.3"
+android-plugin = "9.0.0-rc01"
+kotlin-plugin = "2.3.0"
+google-ksp-plugin = "2.3.4"
 maven-publish-plugin = "0.35.0"
 
 androidx-junit = "1.3.0"
 androidx-espresso = "3.7.0"
 androidx-appcompat = "1.7.1"
-androidx-activity = "1.12.1"
+androidx-activity = "1.12.2"
 androidx-room = "2.8.4"
 androidx-paging = "3.3.6"
-androidx-compose-bom = "2025.12.00"
+androidx-compose-bom = "2025.12.01"
 
 google-material = "1.13.0"
 google-gson = "2.13.2"
@@ -26,13 +26,9 @@ monitor = "1.8.5"
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-plugin" }
 
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-plugin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
-
 androidx-room = { id = "androidx.room", version.ref = "androidx-room" }
-
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp-plugin" }
-
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish-plugin" }
 
 [libraries]

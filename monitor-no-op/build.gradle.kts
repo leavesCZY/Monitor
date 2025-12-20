@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.maven.publish)
     id("maven-publish")
     id("signing")

@@ -32,9 +32,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -344,20 +343,20 @@ private fun ScrollableTabRow(
     selectedTabIndex: Int,
     scrollToPage: (Int) -> Unit
 ) {
-    TabRow(
+    SecondaryTabRow(
         modifier = Modifier
             .fillMaxWidth(),
         containerColor = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color,
         contentColor = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
         selectedTabIndex = selectedTabIndex,
-        indicator = { tabPositions ->
-            if (selectedTabIndex < tabPositions.size) {
-                SecondaryIndicator(
-                    modifier = Modifier
-                        .tabIndicatorOffset(currentTabPosition = tabPositions[selectedTabIndex]),
-                    color = Color.White
-                )
-            }
+        indicator = {
+            TabRowDefaults.SecondaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(
+                    selectedTabIndex = selectedTabIndex,
+                    matchContentSize = false
+                ),
+                color = Color.White
+            )
         },
         divider = {
 
