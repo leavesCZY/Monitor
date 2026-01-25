@@ -139,8 +139,8 @@ private fun MonitorDetailsPage(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(paddingValues = innerPadding)
+                .fillMaxSize()
         ) {
             val coroutineScope = rememberCoroutineScope()
             val pagerState = rememberPagerState {
@@ -157,8 +157,8 @@ private fun MonitorDetailsPage(
             )
             HorizontalPager(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(weight = 1f),
+                    .weight(weight = 1f)
+                    .fillMaxWidth(),
                 state = pagerState,
                 key = {
                     mainPageViewState.tabTagList[it]
@@ -212,7 +212,7 @@ private fun MonitorDetailsTopBar(
     ) {
         Row(
             modifier = Modifier
-                .background(color = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color)
+                .background(color = MonitorTheme.colorScheme.c_FF2196F3_FF2E3036.color)
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(horizontal = 14.dp, vertical = 8.dp),
@@ -346,7 +346,7 @@ private fun ScrollableTabRow(
     SecondaryTabRow(
         modifier = Modifier
             .fillMaxWidth(),
-        containerColor = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color,
+        containerColor = MonitorTheme.colorScheme.c_FF2196F3_FF2E3036.color,
         contentColor = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
         selectedTabIndex = selectedTabIndex,
         indicator = {
@@ -355,7 +355,7 @@ private fun ScrollableTabRow(
                     selectedTabIndex = selectedTabIndex,
                     matchContentSize = false
                 ),
-                color = Color.White
+                color = MonitorTheme.colorScheme.c_FF9FCAF6_660085EB.color
             )
         },
         divider = {
@@ -405,7 +405,7 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
         items(
             items = pageViewState.overview,
             key = {
-                "header-" + it.name
+                it.name
             },
             contentType = {
                 "MonitorPairItem"
@@ -439,7 +439,7 @@ private fun MonitorDetailsPage(
         items(
             items = headers,
             key = {
-                "header-" + it.name
+                it.name
             },
             contentType = {
                 "MonitorPairItem"

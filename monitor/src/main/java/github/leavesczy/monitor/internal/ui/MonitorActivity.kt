@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,7 +64,7 @@ internal class MonitorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MonitorTheme {
-                val pagingItems = monitorViewModel.getMonitors().collectAsLazyPagingItems()
+                val pagingItems = monitorViewModel.monitorPagingDataFlow.collectAsLazyPagingItems()
                 MonitorPage(
                     monitorLazyPagingItems = pagingItems,
                     onClickClear = monitorViewModel::onClickClear,
@@ -101,8 +100,8 @@ private fun MonitorPage(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = innerPadding),
+                .padding(paddingValues = innerPadding)
+                .fillMaxSize(),
             state = rememberLazyListState(),
             contentPadding = PaddingValues(bottom = 20.dp)
         ) {
@@ -131,10 +130,11 @@ private fun MonitorPage(
 private fun MonitorTopBar(onClickClear: () -> Unit) {
     Row(
         modifier = Modifier
-            .background(color = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color)
+            .background(color = MonitorTheme.colorScheme.c_FF2196F3_FF2E3036.color)
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 16.dp),
+            .padding(horizontal = 14.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -144,10 +144,6 @@ private fun MonitorTopBar(onClickClear: () -> Unit) {
             lineHeight = 20.sp,
             fontWeight = FontWeight.Medium,
             color = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color
-        )
-        Spacer(
-            modifier = Modifier
-                .weight(weight = 1f)
         )
         Icon(
             modifier = Modifier
@@ -191,12 +187,13 @@ private fun MonitorItem(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .align(alignment = Alignment.TopCenter)
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(space = 6.dp),
             verticalAlignment = Alignment.Top
         ) {
-            MonitorItemTitle(
+            ItemTitle(
                 modifier = Modifier
                     .widthIn(min = 30.dp),
                 text = monitor.responseCodeFormatted,
@@ -204,43 +201,50 @@ private fun MonitorItem(
             )
             Column(
                 modifier = Modifier
-                    .weight(weight = 1f)
+                    .weight(weight = 1f),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(
+                    space = 3.dp,
+                    alignment = Alignment.Top
+                )
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MonitorItemTitle(
+                    ItemTitle(
                         modifier = Modifier
                             .weight(weight = 1f),
                         text = monitor.pathWithQuery,
                         color = titleColor
                     )
-                    MonitorItemTitle(
+                    ItemTitle(
                         modifier = Modifier,
                         text = monitor.id.toString(),
                         color = titleColor
                     )
                 }
-                MonitorItemSubtitle(
-                    modifier = Modifier
-                        .padding(vertical = 2.dp),
+                ItemSubtitle(
+                    modifier = Modifier,
                     text = monitor.host
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    MonitorItemSubtitle(
+                    ItemSubtitle(
                         modifier = Modifier,
                         text = monitor.requestTimeFormatted
                     )
-                    MonitorItemSubtitle(
+                    ItemSubtitle(
                         modifier = Modifier,
                         text = monitor.requestDurationFormatted
                     )
-                    MonitorItemSubtitle(
+                    ItemSubtitle(
                         modifier = Modifier,
                         text = monitor.totalSizeFormatted
                     )
@@ -258,7 +262,7 @@ private fun MonitorItem(
 }
 
 @Composable
-private fun MonitorItemTitle(
+private fun ItemTitle(
     modifier: Modifier,
     text: String,
     color: Color
@@ -278,7 +282,7 @@ private fun MonitorItemTitle(
 }
 
 @Composable
-private fun MonitorItemSubtitle(
+private fun ItemSubtitle(
     modifier: Modifier,
     text: String
 ) {

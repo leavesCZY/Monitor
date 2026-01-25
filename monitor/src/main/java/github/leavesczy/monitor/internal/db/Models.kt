@@ -140,7 +140,7 @@ internal data class Monitor(
         }
 
     val requestTimeFormatted: String by lazy(mode = LazyThreadSafetyMode.NONE) {
-        val simpleDateFormat = SimpleDateFormat("MM-dd HH:mm:ss SSS", Locale.getDefault())
+        val simpleDateFormat = SimpleDateFormat("MM-dd HH:mm:ss:SSS", Locale.getDefault())
         simpleDateFormat.format(Date(requestTime))
     }
 

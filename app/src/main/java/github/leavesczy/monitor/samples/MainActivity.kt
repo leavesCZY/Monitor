@@ -80,8 +80,8 @@ class MainActivity : AppCompatActivity() {
                 ) { innerPadding ->
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues = innerPadding),
+                            .padding(paddingValues = innerPadding)
+                            .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Button(

@@ -8,11 +8,12 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Density
@@ -22,10 +23,11 @@ import androidx.compose.ui.unit.Density
  * @Date: 2025/5/20 15:50
  * @Desc:
  */
-internal class MonitorColor(
-    day: Color,
-    night: Color,
-    darkTheme: Boolean
+@Stable
+internal data class MonitorColor(
+    private val day: Color,
+    private val night: Color,
+    private val darkTheme: Boolean
 ) {
 
     val color = if (darkTheme) {
@@ -36,49 +38,54 @@ internal class MonitorColor(
 
 }
 
-internal data class MonitorColorScheme(
-    val darkTheme: Boolean,
-    val c_FFFFFFFF_FF101010: MonitorColor = MonitorColor(
+@Stable
+internal data class MonitorColorScheme(private val darkTheme: Boolean) {
+    val c_FFFFFFFF_FF101010 = MonitorColor(
         day = Color(color = 0xFFFFFFFF),
         night = Color(color = 0xFF101010),
         darkTheme = darkTheme
-    ),
-    val c_FF0277BD_FF2E3036: MonitorColor = MonitorColor(
-        day = Color(color = 0xFF0277BD),
+    )
+    val c_FF2196F3_FF2E3036 = MonitorColor(
+        day = Color(color = 0xFF2196F3),
         night = Color(color = 0xFF2E3036),
         darkTheme = darkTheme
-    ),
-    val c_FFFFFFFF_FFFFFFFF: MonitorColor = MonitorColor(
+    )
+    val c_FF9FCAF6_660085EB = MonitorColor(
+        day = Color(color = 0xFF9FCAF6),
+        night = Color(color = 0x660085EB),
+        darkTheme = darkTheme
+    )
+    val c_FFFFFFFF_FFFFFFFF = MonitorColor(
         day = Color(color = 0xFFFFFFFF),
         night = Color(color = 0xFFFFFFFF),
         darkTheme = darkTheme
-    ),
-    val c_DEFFFFFF_DEFFFFFF: MonitorColor = MonitorColor(
+    )
+    val c_DEFFFFFF_DEFFFFFF = MonitorColor(
         day = Color(color = 0xDEFFFFFF),
         night = Color(color = 0xDEFFFFFF),
         darkTheme = darkTheme
-    ),
-    val c_B3001018_B3FFFFFF: MonitorColor = MonitorColor(
+    )
+    val c_B3001018_B3FFFFFF = MonitorColor(
         day = Color(color = 0xB3001018),
         night = Color(color = 0xB3FFFFFF),
         darkTheme = darkTheme
-    ),
-    val c_FF001018_DEFFFFFF: MonitorColor = MonitorColor(
+    )
+    val c_FF001018_DEFFFFFF = MonitorColor(
         day = Color(color = 0xFF001018),
         night = Color(color = 0xDEFFFFFF),
         darkTheme = darkTheme
-    ),
-    val c_FFFF545C_FFFA525A: MonitorColor = MonitorColor(
+    )
+    val c_FFFF545C_FFFA525A = MonitorColor(
         day = Color(color = 0xFFFF545C),
         night = Color(color = 0xFFFA525A),
         darkTheme = darkTheme
-    ),
-    val c_FFEFF1F3_FF333333: MonitorColor = MonitorColor(
+    )
+    val c_FFEFF1F3_FF333333 = MonitorColor(
         day = Color(color = 0xFFEFF1F3),
         night = Color(color = 0xFF333333),
         darkTheme = darkTheme
     )
-)
+}
 
 private val LocalMonitorColorScheme = staticCompositionLocalOf<MonitorColorScheme> {
     error("CompositionLocal LocalMonitorColorScheme not present")
@@ -150,22 +157,18 @@ internal fun MonitorTheme(
     content: @Composable () -> Unit
 ) {
     val monitorColorScheme = remember(key1 = darkTheme) {
-        if (darkTheme) {
-            MonitorColorScheme(darkTheme = true)
-        } else {
-            MonitorColorScheme(darkTheme = false)
-        }
+        MonitorColorScheme(darkTheme = darkTheme)
     }
     val customTextSelectionColors = remember {
         TextSelectionColors(
-            handleColor = Color(0xFF1BA2E6),
-            backgroundColor = Color(0x661BA2E6)
+            handleColor = Color(color = 0xFF1BA2E6),
+            backgroundColor = Color(color = 0x661BA2E6)
         )
     }
-    val localContext = LocalContext.current
+    val localResources = LocalResources.current
     val density = remember {
         Density(
-            density = localContext.resources.displayMetrics.widthPixels / 380f,
+            density = localResources.displayMetrics.widthPixels / 380f,
             fontScale = 1f
         )
     }
