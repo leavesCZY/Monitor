@@ -1,6 +1,7 @@
 package github.leavesczy.monitor.internal.db
 
 import android.text.format.Formatter
+import androidx.core.content.ContextCompat
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.internal.ContextProvider
 import github.leavesczy.monitor.internal.JsonFormat
@@ -36,7 +37,7 @@ internal fun formatBody(body: String?, contentType: String): String {
         }
 
         body.isBlank() -> {
-            ContextProvider.context.getString(R.string.monitor_encoded_body_omitted)
+            ContextCompat.getString(ContextProvider.context, R.string.monitor_encoded_body_omitted)
         }
 
         contentType.contains("json", true) -> {

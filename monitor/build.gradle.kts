@@ -30,8 +30,8 @@ android {
             jvmTarget.set(JvmTarget.JVM_11)
             optIn.addAll(
                 setOf(
-                    "androidx.paging.ExperimentalPagingApi",
                     "androidx.room.ExperimentalRoomApi",
+                    "androidx.paging.ExperimentalPagingApi",
                     "kotlinx.coroutines.DelicateCoroutinesApi"
                 )
             )

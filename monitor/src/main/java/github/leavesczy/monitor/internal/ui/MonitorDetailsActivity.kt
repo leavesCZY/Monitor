@@ -355,7 +355,7 @@ private fun ScrollableTabRow(
                     selectedTabIndex = selectedTabIndex,
                     matchContentSize = false
                 ),
-                color = MonitorTheme.colorScheme.c_FF9FCAF6_660085EB.color
+                color = MonitorTheme.colorScheme.c_FF8EBBEA_660085EB.color
             )
         },
         divider = {

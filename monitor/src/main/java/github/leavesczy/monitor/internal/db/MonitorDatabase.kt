@@ -48,8 +48,8 @@ internal abstract class MonitorDatabase : RoomDatabase() {
                 MONITOR_DATABASE_NAME
             ).fallbackToDestructiveMigration(dropAllTables = true)
                 .setAutoCloseTimeout(
-                    autoCloseTimeout = 120,
-                    autoCloseTimeUnit = TimeUnit.SECONDS
+                    autoCloseTimeout = 2,
+                    autoCloseTimeUnit = TimeUnit.MINUTES
                 )
                 .build()
         }

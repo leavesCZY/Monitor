@@ -50,8 +50,8 @@ internal data class MonitorColorScheme(private val darkTheme: Boolean) {
         night = Color(color = 0xFF2E3036),
         darkTheme = darkTheme
     )
-    val c_FF9FCAF6_660085EB = MonitorColor(
-        day = Color(color = 0xFF9FCAF6),
+    val c_FF8EBBEA_660085EB = MonitorColor(
+        day = Color(color = 0xFF8EBBEA),
         night = Color(color = 0x660085EB),
         darkTheme = darkTheme
     )

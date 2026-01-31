@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -79,9 +80,9 @@ internal class MonitorDetailsViewModel(
                     mainPageViewState = MonitorDetailPageViewState(
                         title = it.method + " " + it.pathWithQuery,
                         tabTagList = listOf(
-                            application.getString(R.string.monitor_overview),
-                            application.getString(R.string.monitor_request),
-                            application.getString(R.string.monitor_response),
+                            getString(id = R.string.monitor_overview),
+                            getString(id = R.string.monitor_request),
+                            getString(id = R.string.monitor_response),
                         )
                     )
                     overviewPageViewState = MonitorDetailOverviewPageViewState(
@@ -103,7 +104,7 @@ internal class MonitorDetailsViewModel(
         viewModelScope.launch(context = Dispatchers.Default) {
             try {
                 val shareText = queryMonitorShareText()
-                val monitor = application.getString(R.string.monitor_monitor)
+                val monitor = getString(id = R.string.monitor_monitor)
                 val clipboardManager =
                     application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clipData = ClipData.newPlainText(monitor, shareText)
@@ -120,7 +121,7 @@ internal class MonitorDetailsViewModel(
         viewModelScope.launch(context = Dispatchers.Default) {
             try {
                 val shareText = queryMonitorShareText()
-                val monitor = application.getString(R.string.monitor_monitor)
+                val monitor = getString(id = R.string.monitor_monitor)
                 val shareIntent = ShareCompat.IntentBuilder(application)
                     .setText(shareText)
                     .setType("text/plain")
@@ -145,7 +146,7 @@ internal class MonitorDetailsViewModel(
                 val authority = application.applicationInfo.packageName + ".monitorFileProvider"
                 val shareFileUri =
                     FileProvider.getUriForFile(application, authority, shareFile)
-                val monitor = application.getString(R.string.monitor_monitor)
+                val monitor = getString(id = R.string.monitor_monitor)
                 val shareIntent = ShareCompat.IntentBuilder(application)
                     .setStream(shareFileUri)
                     .setType(application.contentResolver.getType(shareFileUri))
@@ -260,13 +261,17 @@ internal class MonitorDetailsViewModel(
     }
 
     private suspend fun showToast(@StringRes resId: Int) {
-        showToast(msg = application.getString(resId))
+        showToast(msg = getString(id = resId))
     }
 
     private suspend fun showToast(msg: String) {
         withContext(context = Dispatchers.Main.immediate) {
             Toast.makeText(application, msg, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun getString(id: Int): String {
+        return ContextCompat.getString(application, id)
     }
 
 }
