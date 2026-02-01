@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
  */
 @Database(
     entities = [Monitor::class],
-    version = 42
+    version = 43
 )
 @TypeConverters(value = [MonitorTypeConverter::class])
 internal abstract class MonitorDatabase : RoomDatabase() {
@@ -31,13 +31,14 @@ internal abstract class MonitorDatabase : RoomDatabase() {
         val instance: MonitorDatabase
             get() {
                 return monitorDatabase ?: synchronized(lock = MonitorDatabase::class.java) {
-                    val cache = monitorDatabase
-                    if (cache != null) {
-                        return@synchronized cache
+                    val cachedDatabase = monitorDatabase
+                    if (cachedDatabase != null) {
+                        cachedDatabase
+                    } else {
+                        val database = createDb(context = ContextProvider.context)
+                        monitorDatabase = database
+                        database
                     }
-                    val db = createDb(context = ContextProvider.context)
-                    monitorDatabase = db
-                    return@synchronized db
                 }
             }
 

@@ -4,7 +4,7 @@ import github.leavesczy.monitor.internal.ContextProvider
 import github.leavesczy.monitor.internal.MonitorNotification
 import github.leavesczy.monitor.internal.db.Monitor
 import github.leavesczy.monitor.internal.db.MonitorDatabase
-import github.leavesczy.monitor.internal.db.MonitorPair
+import github.leavesczy.monitor.internal.db.MonitorHttpHeader
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -69,7 +69,7 @@ class MonitorInterceptor : Interceptor {
         val headers = request.headers
         val body = request.body
         val requestHeaders = headers.map {
-            MonitorPair(name = it.first, value = it.second)
+            MonitorHttpHeader(name = it.first, value = it.second)
         }
         val requestBody: String?
         val requestContentLength: Long
@@ -128,10 +128,10 @@ class MonitorInterceptor : Interceptor {
         monitor: Monitor
     ): Monitor {
         val requestHeaders = response.request.headers.map {
-            MonitorPair(name = it.first, value = it.second)
+            MonitorHttpHeader(name = it.first, value = it.second)
         }
         val responseHeaders = response.headers.map {
-            MonitorPair(name = it.first, value = it.second)
+            MonitorHttpHeader(name = it.first, value = it.second)
         }
         val body = response.body
         val responseContentType = body.contentType()?.toString() ?: ""

@@ -18,9 +18,9 @@ import androidx.lifecycle.viewModelScope
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.internal.db.Monitor
 import github.leavesczy.monitor.internal.db.MonitorDatabase
-import github.leavesczy.monitor.internal.db.MonitorPair
-import github.leavesczy.monitor.internal.db.MonitorStatus
-import github.leavesczy.monitor.internal.db.formatBytes
+import github.leavesczy.monitor.internal.db.MonitorHttpHeader
+import github.leavesczy.monitor.internal.db.MonitorHttpState
+import github.leavesczy.monitor.internal.db.MonitorUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -80,9 +80,9 @@ internal class MonitorDetailsViewModel(
                     mainPageViewState = MonitorDetailPageViewState(
                         title = it.method + " " + it.pathWithQuery,
                         tabTagList = listOf(
-                            getString(id = R.string.monitor_overview),
-                            getString(id = R.string.monitor_request),
-                            getString(id = R.string.monitor_response),
+                            getString(resId = R.string.monitor_overview),
+                            getString(resId = R.string.monitor_request),
+                            getString(resId = R.string.monitor_response),
                         )
                     )
                     overviewPageViewState = MonitorDetailOverviewPageViewState(
@@ -104,7 +104,7 @@ internal class MonitorDetailsViewModel(
         viewModelScope.launch(context = Dispatchers.Default) {
             try {
                 val shareText = queryMonitorShareText()
-                val monitor = getString(id = R.string.monitor_monitor)
+                val monitor = getString(resId = R.string.monitor_monitor)
                 val clipboardManager =
                     application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clipData = ClipData.newPlainText(monitor, shareText)
@@ -121,7 +121,7 @@ internal class MonitorDetailsViewModel(
         viewModelScope.launch(context = Dispatchers.Default) {
             try {
                 val shareText = queryMonitorShareText()
-                val monitor = getString(id = R.string.monitor_monitor)
+                val monitor = getString(resId = R.string.monitor_monitor)
                 val shareIntent = ShareCompat.IntentBuilder(application)
                     .setText(shareText)
                     .setType("text/plain")
@@ -143,10 +143,10 @@ internal class MonitorDetailsViewModel(
                 val shareText = queryMonitorShareText()
                 val shareFile = createShareFile()
                 shareFile.writeText(text = shareText, charset = Charsets.UTF_8)
-                val authority = application.applicationInfo.packageName + ".monitorFileProvider"
+                val authority = application.applicationInfo.packageName + ".MonitorFileProvider"
                 val shareFileUri =
                     FileProvider.getUriForFile(application, authority, shareFile)
-                val monitor = getString(id = R.string.monitor_monitor)
+                val monitor = getString(resId = R.string.monitor_monitor)
                 val shareIntent = ShareCompat.IntentBuilder(application)
                     .setStream(shareFileUri)
                     .setType(application.contentResolver.getType(shareFileUri))
@@ -168,10 +168,9 @@ internal class MonitorDetailsViewModel(
     }
 
     private fun createShareFile(): File {
-        val cacheRootDir = File(application.cacheDir, "monitor")
+        val cacheRootDir = File(application.cacheDir, "Monitor")
         cacheRootDir.mkdirs()
-        val currentTime =
-            SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()).format(Date())
+        val currentTime = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val shareFile = File(cacheRootDir, "monitor_$currentTime.txt")
         shareFile.createNewFile()
         return shareFile
@@ -201,53 +200,63 @@ internal class MonitorDetailsViewModel(
         }
     }
 
-    private fun Monitor.buildOverview(): List<MonitorPair> {
-        val responseSummaryText = when (httpStatus) {
-            MonitorStatus.Requesting -> {
+    private fun Monitor.buildOverview(): List<MonitorHttpHeader> {
+        val responseSummaryText = when (httpState) {
+            MonitorHttpState.Requesting -> {
                 ""
             }
 
-            MonitorStatus.Complete -> {
+            MonitorHttpState.Complete -> {
                 "$responseCode $responseMessage"
             }
 
-            MonitorStatus.Failed -> {
+            MonitorHttpState.Failed -> {
                 error ?: ""
             }
         }
         return buildList {
-            add(MonitorPair(name = "Url", value = urlFormatted))
-            add(MonitorPair(name = "Method", value = method))
-            add(MonitorPair(name = "Protocol", value = protocol))
-            add(MonitorPair(name = "State", value = httpStatus.toString()))
-            add(MonitorPair(name = "Response", value = responseSummaryText))
-            add(MonitorPair(name = "TlsVersion", value = responseTlsVersion))
-            add(MonitorPair(name = "CipherSuite", value = responseCipherSuite))
-            add(MonitorPair(name = "Request Time", value = getDateYMDHMSS(date = requestTime)))
-            add(MonitorPair(name = "Response Time", value = getDateYMDHMSS(date = responseTime)))
-            add(MonitorPair(name = "Duration", value = requestDurationFormatted))
+            add(MonitorHttpHeader(name = "Url", value = urlFormatted))
+            add(MonitorHttpHeader(name = "Method", value = method))
+            add(MonitorHttpHeader(name = "Protocol", value = protocol))
+            add(MonitorHttpHeader(name = "State", value = httpState.toString()))
+            add(MonitorHttpHeader(name = "Response", value = responseSummaryText))
+            add(MonitorHttpHeader(name = "TlsVersion", value = responseTlsVersion))
+            add(MonitorHttpHeader(name = "CipherSuite", value = responseCipherSuite))
             add(
-                MonitorPair(
+                MonitorHttpHeader(
+                    name = "Request Time",
+                    value = getDateYMDHMSS(date = requestTime)
+                )
+            )
+            add(
+                MonitorHttpHeader(
+                    name = "Response Time",
+                    value = getDateYMDHMSS(date = responseTime)
+                )
+            )
+            add(MonitorHttpHeader(name = "Duration", value = requestDurationFormatted))
+            add(
+                MonitorHttpHeader(
                     name = "Request Size",
-                    value = formatBytes(bytes = requestContentLength)
+                    value = MonitorUtils.formatBytes(bytes = requestContentLength)
                 )
             )
             add(
-                MonitorPair(
+                MonitorHttpHeader(
                     name = "Response Size",
-                    value = formatBytes(bytes = responseContentLength)
+                    value = MonitorUtils.formatBytes(bytes = responseContentLength)
                 )
             )
-            add(MonitorPair(name = "Total Size", value = totalSizeFormatted))
+            add(MonitorHttpHeader(name = "Total Size", value = totalSizeFormatted))
         }
     }
 
     private fun getDateYMDHMSS(date: Long): String {
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS", Locale.getDefault())
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS", Locale.US)
         return simpleDateFormat.format(Date(date))
     }
 
-    private fun List<MonitorPair>.format(): String {
+    private fun List<MonitorHttpHeader>.format(): String {
         return buildString {
             this@format.forEachIndexed { index, pair ->
                 append(pair.name)
@@ -261,7 +270,7 @@ internal class MonitorDetailsViewModel(
     }
 
     private suspend fun showToast(@StringRes resId: Int) {
-        showToast(msg = getString(id = resId))
+        showToast(msg = getString(resId = resId))
     }
 
     private suspend fun showToast(msg: String) {
@@ -270,8 +279,8 @@ internal class MonitorDetailsViewModel(
         }
     }
 
-    private fun getString(id: Int): String {
-        return ContextCompat.getString(application, id)
+    private fun getString(@StringRes resId: Int): String {
+        return ContextCompat.getString(application, resId)
     }
 
 }

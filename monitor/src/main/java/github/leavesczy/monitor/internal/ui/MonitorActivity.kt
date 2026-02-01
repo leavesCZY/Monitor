@@ -47,7 +47,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.internal.db.Monitor
-import github.leavesczy.monitor.internal.db.MonitorStatus
+import github.leavesczy.monitor.internal.db.MonitorHttpState
 import github.leavesczy.monitor.internal.ui.logic.MonitorViewModel
 
 /**
@@ -64,7 +64,7 @@ internal class MonitorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MonitorTheme {
-                val pagingItems = monitorViewModel.monitorPagingDataFlow.collectAsLazyPagingItems()
+                val pagingItems = monitorViewModel.pagingDataFlow.collectAsLazyPagingItems()
                 MonitorPage(
                     monitorLazyPagingItems = pagingItems,
                     onClickClear = monitorViewModel::onClickClear,
@@ -161,12 +161,12 @@ private fun MonitorItem(
     monitor: Monitor,
     onClick: (Monitor) -> Unit
 ) {
-    val titleColor = when (monitor.httpStatus) {
-        MonitorStatus.Requesting -> {
+    val titleColor = when (monitor.httpState) {
+        MonitorHttpState.Requesting -> {
             MonitorTheme.colorScheme.c_B3001018_B3FFFFFF.color
         }
 
-        MonitorStatus.Complete -> {
+        MonitorHttpState.Complete -> {
             if (monitor.responseCode == 200) {
                 MonitorTheme.colorScheme.c_FF001018_DEFFFFFF.color
             } else {
@@ -174,7 +174,7 @@ private fun MonitorItem(
             }
         }
 
-        MonitorStatus.Failed -> {
+        MonitorHttpState.Failed -> {
             MonitorTheme.colorScheme.c_FFFF545C_FFFA525A.color
         }
     }

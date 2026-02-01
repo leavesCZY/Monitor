@@ -37,7 +37,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @ExperimentalMaterial3Api
 class MainActivity : AppCompatActivity() {
 
-    private val okHttpClient by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val okHttpClient by lazy {
         OkHttpClient.Builder().apply {
             addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         }.build()
     }
 
-    private val apiService by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val apiService by lazy {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://httpbin.org")
             .addConverterFactory(GsonConverterFactory.create())

@@ -26,59 +26,66 @@ import javax.xml.transform.stream.StreamResult
  * @Date: 2025/7/25 14:09
  * @Desc:
  */
-internal fun formatBytes(bytes: Long): String {
-    return Formatter.formatFileSize(ContextProvider.context, bytes)
-}
+internal object MonitorUtils {
 
-internal fun formatBody(body: String?, contentType: String): String {
-    return when {
-        body == null -> {
-            ""
-        }
+    fun formatBytes(bytes: Long): String {
+        return Formatter.formatFileSize(ContextProvider.context, bytes)
+    }
 
-        body.isBlank() -> {
-            ContextCompat.getString(ContextProvider.context, R.string.monitor_encoded_body_omitted)
-        }
+    fun formatBody(body: String?, contentType: String): String {
+        return when {
+            body == null -> {
+                ""
+            }
 
-        contentType.contains("json", true) -> {
-            JsonFormat.toPrettyJson(json = body)
-        }
+            body.isBlank() -> {
+                ContextCompat.getString(
+                    ContextProvider.context,
+                    R.string.monitor_encoded_body_omitted
+                )
+            }
 
-        contentType.contains("xml", true) -> {
-            formatXml(xml = body)
-        }
+            contentType.contains("json", true) -> {
+                JsonFormat.toPrettyJson(json = body)
+            }
 
-        else -> {
-            body
+            contentType.contains("xml", true) -> {
+                formatXml(xml = body)
+            }
+
+            else -> {
+                body
+            }
         }
     }
-}
 
-private fun formatXml(xml: String): String {
-    return try {
-        val documentFactory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-        // This flag is required for security reasons
-        documentFactory.isExpandEntityReferences = false
-        val documentBuilder: DocumentBuilder = documentFactory.newDocumentBuilder()
-        val inputSource =
-            InputSource(ByteArrayInputStream(xml.toByteArray(Charset.defaultCharset())))
-        val document: Document = documentBuilder.parse(inputSource)
-        val domSource = DOMSource(document)
-        val writer = StringWriter()
-        val result = StreamResult(writer)
-        TransformerFactory.newInstance().apply {
-            setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-        }.newTransformer().apply {
-            setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
-            setOutputProperty(OutputKeys.INDENT, "yes")
-            transform(domSource, result)
+    private fun formatXml(xml: String): String {
+        return try {
+            val documentFactory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+            // This flag is required for security reasons
+            documentFactory.isExpandEntityReferences = false
+            val documentBuilder: DocumentBuilder = documentFactory.newDocumentBuilder()
+            val inputSource =
+                InputSource(ByteArrayInputStream(xml.toByteArray(Charset.defaultCharset())))
+            val document: Document = documentBuilder.parse(inputSource)
+            val domSource = DOMSource(document)
+            val writer = StringWriter()
+            val result = StreamResult(writer)
+            TransformerFactory.newInstance().apply {
+                setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+            }.newTransformer().apply {
+                setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+                setOutputProperty(OutputKeys.INDENT, "yes")
+                transform(domSource, result)
+            }
+            writer.toString()
+        } catch (_: SAXParseException) {
+            xml
+        } catch (_: IOException) {
+            xml
+        } catch (_: TransformerException) {
+            xml
         }
-        writer.toString()
-    } catch (_: SAXParseException) {
-        xml
-    } catch (_: IOException) {
-        xml
-    } catch (_: TransformerException) {
-        xml
     }
+
 }

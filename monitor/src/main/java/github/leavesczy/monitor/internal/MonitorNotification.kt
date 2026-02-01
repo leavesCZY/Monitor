@@ -97,7 +97,7 @@ internal object MonitorNotification {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentTitle(notificationTitle)
-                .setContentIntent(getContentIntent(context = context))
+                .setContentIntent(buildContentIntent(context = context))
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(false)
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -110,7 +110,7 @@ internal object MonitorNotification {
         }
     }
 
-    private fun getContentIntent(context: Context): PendingIntent {
+    private fun buildContentIntent(context: Context): PendingIntent {
         val intent = Intent(context, MonitorActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         return PendingIntent.getActivity(

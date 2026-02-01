@@ -55,7 +55,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.monitor.R
-import github.leavesczy.monitor.internal.db.MonitorPair
+import github.leavesczy.monitor.internal.db.MonitorHttpHeader
 import github.leavesczy.monitor.internal.ui.logic.MonitorDetailOverviewPageViewState
 import github.leavesczy.monitor.internal.ui.logic.MonitorDetailPageViewState
 import github.leavesczy.monitor.internal.ui.logic.MonitorDetailRequestPageViewState
@@ -76,7 +76,7 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
 
     }
 
-    private val monitorId by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val monitorId by lazy {
         intent.getLongExtra(KEY_MONITOR_ID, 0)
     }
 
@@ -418,7 +418,7 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
 
 @Composable
 private fun MonitorDetailsPage(
-    headers: List<MonitorPair>,
+    headers: List<MonitorHttpHeader>,
     bodyFormatted: String
 ) {
     LazyColumn(
@@ -474,7 +474,7 @@ private fun MonitorDetailsPage(
 }
 
 @Composable
-private fun MonitorPairItem(pair: MonitorPair) {
+private fun MonitorPairItem(pair: MonitorHttpHeader) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),

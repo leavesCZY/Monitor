@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  */
 internal class MonitorViewModel : ViewModel() {
 
-    val monitorPagingDataFlow = Pager(
+    val pagingDataFlow = Pager(
         config = PagingConfig(
             pageSize = 20,
             initialLoadSize = 30,
