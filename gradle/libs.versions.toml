@@ -20,7 +20,7 @@ google-material = "1.13.0"
 squareup-okHttp = "5.3.2"
 squareup-retrofit = "3.0.0"
 
-monitor = "1.8.5"
+monitor = "1.8.6"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
