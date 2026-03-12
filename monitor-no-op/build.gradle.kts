@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.maven.publish)
     id("maven-publish")
     id("signing")
@@ -16,7 +15,7 @@ android {
     namespace = "github.leavesczy.monitor"
     compileSdk = 36
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
         consumerProguardFiles.add(File("consumer-rules.pro"))
     }
     compileOptions {

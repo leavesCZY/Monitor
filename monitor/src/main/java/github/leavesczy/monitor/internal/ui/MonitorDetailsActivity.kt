@@ -32,9 +32,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +55,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import github.leavesczy.monitor.R
-import github.leavesczy.monitor.internal.db.MonitorPair
+import github.leavesczy.monitor.internal.db.MonitorHttpHeader
 import github.leavesczy.monitor.internal.ui.logic.MonitorDetailOverviewPageViewState
 import github.leavesczy.monitor.internal.ui.logic.MonitorDetailPageViewState
 import github.leavesczy.monitor.internal.ui.logic.MonitorDetailRequestPageViewState
@@ -77,7 +76,7 @@ internal class MonitorDetailsActivity : AppCompatActivity() {
 
     }
 
-    private val monitorId by lazy(mode = LazyThreadSafetyMode.NONE) {
+    private val monitorId by lazy {
         intent.getLongExtra(KEY_MONITOR_ID, 0)
     }
 
@@ -140,8 +139,8 @@ private fun MonitorDetailsPage(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(paddingValues = innerPadding)
+                .fillMaxSize()
         ) {
             val coroutineScope = rememberCoroutineScope()
             val pagerState = rememberPagerState {
@@ -158,8 +157,8 @@ private fun MonitorDetailsPage(
             )
             HorizontalPager(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(weight = 1f),
+                    .weight(weight = 1f)
+                    .fillMaxWidth(),
                 state = pagerState,
                 key = {
                     mainPageViewState.tabTagList[it]
@@ -213,7 +212,7 @@ private fun MonitorDetailsTopBar(
     ) {
         Row(
             modifier = Modifier
-                .background(color = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color)
+                .background(color = MonitorTheme.colorScheme.c_FF2196F3_FF2E3036.color)
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .padding(horizontal = 14.dp, vertical = 8.dp),
@@ -344,20 +343,20 @@ private fun ScrollableTabRow(
     selectedTabIndex: Int,
     scrollToPage: (Int) -> Unit
 ) {
-    TabRow(
+    SecondaryTabRow(
         modifier = Modifier
             .fillMaxWidth(),
-        containerColor = MonitorTheme.colorScheme.c_FF0277BD_FF2E3036.color,
+        containerColor = MonitorTheme.colorScheme.c_FF2196F3_FF2E3036.color,
         contentColor = MonitorTheme.colorScheme.c_FFFFFFFF_FFFFFFFF.color,
         selectedTabIndex = selectedTabIndex,
-        indicator = { tabPositions ->
-            if (selectedTabIndex < tabPositions.size) {
-                SecondaryIndicator(
-                    modifier = Modifier
-                        .tabIndicatorOffset(currentTabPosition = tabPositions[selectedTabIndex]),
-                    color = Color.White
-                )
-            }
+        indicator = {
+            TabRowDefaults.SecondaryIndicator(
+                modifier = Modifier.tabIndicatorOffset(
+                    selectedTabIndex = selectedTabIndex,
+                    matchContentSize = false
+                ),
+                color = MonitorTheme.colorScheme.c_FF8EBBEA_660085EB.color
+            )
         },
         divider = {
 
@@ -406,7 +405,7 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
         items(
             items = pageViewState.overview,
             key = {
-                "header-" + it.name
+                it.name
             },
             contentType = {
                 "MonitorPairItem"
@@ -419,7 +418,7 @@ private fun MonitorDetailsOverviewPage(pageViewState: MonitorDetailOverviewPageV
 
 @Composable
 private fun MonitorDetailsPage(
-    headers: List<MonitorPair>,
+    headers: List<MonitorHttpHeader>,
     bodyFormatted: String
 ) {
     LazyColumn(
@@ -440,7 +439,7 @@ private fun MonitorDetailsPage(
         items(
             items = headers,
             key = {
-                "header-" + it.name
+                it.name
             },
             contentType = {
                 "MonitorPairItem"
@@ -475,7 +474,7 @@ private fun MonitorDetailsPage(
 }
 
 @Composable
-private fun MonitorPairItem(pair: MonitorPair) {
+private fun MonitorPairItem(pair: MonitorHttpHeader) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),

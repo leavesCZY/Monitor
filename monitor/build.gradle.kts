@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.google.ksp)
@@ -19,7 +18,7 @@ android {
     namespace = "github.leavesczy.monitor"
     compileSdk = 36
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
         consumerProguardFiles.add(File("consumer-rules.pro"))
     }
     compileOptions {
@@ -31,8 +30,8 @@ android {
             jvmTarget.set(JvmTarget.JVM_11)
             optIn.addAll(
                 setOf(
-                    "androidx.paging.ExperimentalPagingApi",
                     "androidx.room.ExperimentalRoomApi",
+                    "androidx.paging.ExperimentalPagingApi",
                     "kotlinx.coroutines.DelicateCoroutinesApi"
                 )
             )
@@ -51,8 +50,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.paging)
     ksp(libs.androidx.room.compiler)

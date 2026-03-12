@@ -31,4 +31,4 @@ dependencies {
 }
 ```
 
-![](https://github.com/user-attachments/assets/87308488-fe02-47bd-8f81-01470ddb9de8)
+![](https://github.com/user-attachments/assets/7207b66e-5497-40bf-a756-94258ed98b4d)

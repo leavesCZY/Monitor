@@ -5,10 +5,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import github.leavesczy.monitor.R
 import github.leavesczy.monitor.internal.db.MonitorDatabase
 import github.leavesczy.monitor.internal.ui.MonitorActivity
@@ -30,11 +30,22 @@ internal object MonitorNotification {
     private var monitorObserver: Job? = null
 
     fun init(context: Application) {
-        val channelId = context.getString(R.string.monitor_notification_channel_id)
-        val channelName = context.getString(R.string.monitor_notification_channel_name)
-        val channelDescription =
-            context.getString(R.string.monitor_notification_channel_description)
-        val notificationTitle = context.getString(R.string.monitor_notification_title)
+        val channelId = getString(
+            context = context,
+            id = R.string.monitor_notification_channel_id
+        )
+        val channelName = getString(
+            context = context,
+            id = R.string.monitor_notification_channel_name
+        )
+        val channelDescription = getString(
+            context = context,
+            id = R.string.monitor_notification_channel_description
+        )
+        val notificationTitle = getString(
+            context = context,
+            id = R.string.monitor_notification_title
+        )
         val channel = NotificationChannelCompat.Builder(
             channelId,
             NotificationManagerCompat.IMPORTANCE_DEFAULT
@@ -50,7 +61,7 @@ internal object MonitorNotification {
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         monitorObserver?.cancel()
         monitorObserver = GlobalScope.launch(context = Dispatchers.Default) {
-            val queryFlow = MonitorDatabase.instance.monitorDao.queryMonitors(limit = 5)
+            val queryFlow = MonitorDatabase.instance.monitorDao.queryMonitors(limit = 7)
             queryFlow
                 .map {
                     it.map { monitor ->
@@ -59,7 +70,7 @@ internal object MonitorNotification {
                 }
                 .distinctUntilChanged()
                 .collectLatest {
-                    show(
+                    showNotification(
                         context = context,
                         notificationManager = notificationManager,
                         channelId = channelId,
@@ -70,21 +81,23 @@ internal object MonitorNotification {
         }
     }
 
-    private fun show(
+    private fun showNotification(
         context: Context,
         notificationManager: NotificationManager,
         channelId: String,
         notificationTitle: String,
         monitorList: List<String>
     ) {
-        val notificationId = 0x20230708
+        val notificationId = 20260131
         if (monitorList.isEmpty()) {
             notificationManager.cancel(notificationId)
         } else {
             val builder = NotificationCompat.Builder(context, channelId)
-                .setContentTitle(notificationTitle)
-                .setContentIntent(getContentIntent(context = context))
                 .setSmallIcon(R.drawable.monitor_notification_icon)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentTitle(notificationTitle)
+                .setContentIntent(buildContentIntent(context = context))
                 .setOnlyAlertOnce(true)
                 .setAutoCancel(false)
             val inboxStyle = NotificationCompat.InboxStyle()
@@ -97,15 +110,19 @@ internal object MonitorNotification {
         }
     }
 
-    private fun getContentIntent(context: Context): PendingIntent {
-        val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
+    private fun buildContentIntent(context: Context): PendingIntent {
         val intent = Intent(context, MonitorActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(context, 100, intent, flag)
+        return PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun getString(context: Context, id: Int): String {
+        return ContextCompat.getString(context, id)
     }
 
 }

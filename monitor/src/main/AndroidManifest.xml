@@ -16,7 +16,7 @@
 
         <provider
             android:name=".internal.MonitorFileProvider"
-            android:authorities="${applicationId}.monitorFileProvider"
+            android:authorities="${applicationId}.MonitorFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -1,7 +1,7 @@
 package github.leavesczy.monitor.internal.ui.logic
 
 import androidx.compose.runtime.Stable
-import github.leavesczy.monitor.internal.db.MonitorPair
+import github.leavesczy.monitor.internal.db.MonitorHttpHeader
 
 /**
  * @Author: leavesCZY
@@ -16,17 +16,17 @@ internal data class MonitorDetailPageViewState(
 
 @Stable
 internal data class MonitorDetailOverviewPageViewState(
-    val overview: List<MonitorPair>
+    val overview: List<MonitorHttpHeader>
 )
 
 @Stable
 internal data class MonitorDetailRequestPageViewState(
-    val headers: List<MonitorPair>,
+    val headers: List<MonitorHttpHeader>,
     val bodyFormatted: String
 )
 
 @Stable
 internal data class MonitorDetailResponsePageViewState(
-    val headers: List<MonitorPair>,
+    val headers: List<MonitorHttpHeader>,
     val bodyFormatted: String
 )
