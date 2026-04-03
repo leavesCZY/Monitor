@@ -1,6 +1,6 @@
 package github.leavesczy.monitor.internal.db
 
-import androidx.room.TypeConverter
+import androidx.room3.TypeConverter
 import github.leavesczy.monitor.internal.JsonFormat
 
 /**

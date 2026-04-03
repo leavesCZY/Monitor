@@ -8,11 +8,7 @@ plugins {
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.maven.publish)
-    id("maven-publish")
-    id("signing")
 }
-
-val signingKeyId = properties["signing.keyId"]?.toString()
 
 android {
     namespace = "github.leavesczy.monitor"
@@ -40,8 +36,7 @@ android {
     buildFeatures {
         compose = true
     }
-    room {
-        generateKotlin = true
+    room3 {
         schemaDirectory("$projectDir/build/schemas")
     }
 }
@@ -62,17 +57,9 @@ dependencies {
     compileOnly(libs.squareup.okHttp)
 }
 
-if (signingKeyId == null) {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
-        }
-    }
-} else {
+val signingKeyId = properties["signing.keyId"]?.toString()
+
+if (signingKeyId != null) {
     mavenPublishing {
         publishToMavenCentral()
         signAllPublications()

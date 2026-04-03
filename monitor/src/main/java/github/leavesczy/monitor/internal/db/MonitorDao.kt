@@ -1,10 +1,12 @@
 package github.leavesczy.monitor.internal.db
 
 import androidx.paging.PagingSource
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
+import androidx.room3.Insert
+import androidx.room3.Query
+import androidx.room3.Update
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
  * @Desc:
  */
 @Dao
+@DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 internal interface MonitorDao {
 
     @Insert

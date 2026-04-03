@@ -5,11 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.maven.publish)
-    id("maven-publish")
-    id("signing")
 }
-
-val signingKeyId = properties["signing.keyId"]?.toString()
 
 android {
     namespace = "github.leavesczy.monitor"
@@ -33,17 +29,9 @@ dependencies {
     compileOnly(libs.squareup.okHttp)
 }
 
-if (signingKeyId == null) {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
-        }
-    }
-} else {
+val signingKeyId = properties["signing.keyId"]?.toString()
+
+if (signingKeyId != null) {
     mavenPublishing {
         publishToMavenCentral()
         signAllPublications()
