@@ -8,11 +8,17 @@ plugins {
 
 android {
     namespace = "github.leavesczy.monitor.samples"
-    compileSdk = 36
+    compileSdk {
+        version = release(version = 36)
+    }
     defaultConfig {
         applicationId = "github.leavesczy.monitor.samples"
-        minSdk = 23
-        targetSdk = 36
+        minSdk {
+            version = release(version = 23)
+        }
+        targetSdk {
+            version = release(version = 36)
+        }
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -22,13 +28,14 @@ android {
     }
     signingConfigs {
         create("release") {
-            storeFile =
-                File(rootDir.absolutePath + File.separator + "key" + File.separator + "key.jks")
+            storeFile = File(File(rootDir, "doc"), "key.jks")
             keyAlias = "leavesCZY"
             keyPassword = "123456"
             storePassword = "123456"
             enableV1Signing = true
             enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
         }
     }
     buildTypes {
@@ -75,12 +82,11 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.google.material)
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofit.converter.gson)
     implementation(libs.squareup.okHttp.logging.interceptor)
-//    debugImplementation(libs.monitor)
-//    releaseImplementation(libs.monitor.no.op)
+//    debugImplementation(libs.leavesczy.monitor)
+//    releaseImplementation(libs.leavesczy.monitor.no.op)
     debugImplementation(project(":monitor"))
     releaseImplementation(project(":monitor-no-op"))
 }

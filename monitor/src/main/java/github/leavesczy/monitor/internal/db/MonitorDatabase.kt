@@ -1,10 +1,11 @@
 package github.leavesczy.monitor.internal.db
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.Database
+import androidx.room3.ExperimentalRoomApi
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.TypeConverters
 import github.leavesczy.monitor.internal.ContextProvider
 import java.util.concurrent.TimeUnit
 
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit
  */
 @Database(
     entities = [Monitor::class],
-    version = 43
+    version = 44
 )
 @TypeConverters(value = [MonitorTypeConverter::class])
 internal abstract class MonitorDatabase : RoomDatabase() {
@@ -42,11 +43,12 @@ internal abstract class MonitorDatabase : RoomDatabase() {
                 }
             }
 
+        @OptIn(ExperimentalRoomApi::class)
         private fun createDb(context: Context): MonitorDatabase {
             return Room.databaseBuilder(
-                context,
-                MonitorDatabase::class.java,
-                MONITOR_DATABASE_NAME
+                context = context,
+                klass = MonitorDatabase::class.java,
+                name = MONITOR_DATABASE_NAME
             ).fallbackToDestructiveMigration(dropAllTables = true)
                 .setAutoCloseTimeout(
                     autoCloseTimeout = 2,

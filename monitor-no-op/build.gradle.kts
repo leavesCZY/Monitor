@@ -5,17 +5,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.maven.publish)
-    id("maven-publish")
-    id("signing")
 }
-
-val signingKeyId = properties["signing.keyId"]?.toString()
 
 android {
     namespace = "github.leavesczy.monitor"
-    compileSdk = 36
+    compileSdk {
+        version = release(version = 36)
+    }
     defaultConfig {
-        minSdk = 23
+        minSdk {
+            version = release(version = 23)
+        }
         consumerProguardFiles.add(File("consumer-rules.pro"))
     }
     compileOptions {
@@ -33,17 +33,9 @@ dependencies {
     compileOnly(libs.squareup.okHttp)
 }
 
-if (signingKeyId == null) {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
-        }
-    }
-} else {
+val signingKeyId = properties["signing.keyId"]?.toString()
+
+if (signingKeyId != null) {
     mavenPublishing {
         publishToMavenCentral()
         signAllPublications()
@@ -51,7 +43,7 @@ if (signingKeyId == null) {
         coordinates(
             groupId = "io.github.leavesczy",
             artifactId = "monitor-no-op",
-            version = libs.versions.monitor.get()
+            version = libs.versions.leavesczy.monitor.get()
         )
         pom {
             name = "Monitor"
