@@ -13,7 +13,7 @@ androidx-compose-bom = "2026.04.01"
 androidx-compose-paging = "3.5.0-rc01"
 
 junit = "4.13.2"
-google-gson = "2.13.2"
+google-gson = "2.14.0"
 squareup-okHttp = "5.3.2"
 squareup-retrofit = "3.0.0"
 leavesczy-monitor = "1.9.0"
@@ -23,11 +23,23 @@ android-application = { id = "com.android.application", version.ref = "android-p
 android-library = { id = "com.android.library", version.ref = "android-plugin" }
 
 androidx-room = { id = "androidx.room3", version.ref = "androidx-room" }
-google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp-plugin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin-plugin" }
+google-ksp = { id = "com.google.devtools.ksp", version.ref = "google-ksp-plugin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish-plugin" }
 
+app-android-application = { id = "app.android.application" }
+app-android-library = { id = "app.android.library" }
+app-android-compose = { id = "app.android.compose" }
+app-androidx-room = { id = "app.androidx.room" }
+app-library-publish = { id = "app.library.publish" }
+
 [libraries]
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-plugin" }
+androidx-room-gradle = { module = "androidx.room3:room3-gradle-plugin", version.ref = "androidx-room" }
+google-ksp-gradle = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "google-ksp-plugin" }
+maven-publish-gradle = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version.ref = "maven-publish-plugin" }
+
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
@@ -35,8 +47,8 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidx-compose-paging" }
 
 androidx-room-runtime = { module = "androidx.room3:room3-runtime", version.ref = "androidx-room" }
-androidx-room-paging = { module = "androidx.room3:room3-paging", version.ref = "androidx-room" }
 androidx-room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "androidx-room" }
+androidx-room-paging = { module = "androidx.room3:room3-paging", version.ref = "androidx-room" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidx-compose-bom" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
