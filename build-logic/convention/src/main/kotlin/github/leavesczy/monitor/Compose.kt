@@ -22,6 +22,11 @@ internal fun Project.configureCompose(commonExtension: CommonExtension) {
             add("implementation", composeBomPlatform)
             add("androidTestImplementation", composeBomPlatform)
             add("implementation", libs.findLibrary("androidx-compose-ui").get())
+            add("implementation", libs.findLibrary("androidx-compose-ui-util").get())
+            add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
+            add("implementation", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
+            add("androidTestImplementation", libs.findLibrary("androidx-compose-ui-test").get())
+            add("debugImplementation", libs.findLibrary("androidx-compose-ui-test-manifest").get())
             add("implementation", libs.findLibrary("androidx-compose-foundation").get())
             add("implementation", libs.findLibrary("androidx-compose-material3").get())
             add(
@@ -34,7 +39,7 @@ internal fun Project.configureCompose(commonExtension: CommonExtension) {
         compilerOptions {
             optIn.addAll(
                 setOf(
-                    "androidx.room.ExperimentalRoomApi",
+                    "androidx.room3.ExperimentalRoomApi",
                     "androidx.paging.ExperimentalPagingApi",
                     "kotlinx.coroutines.DelicateCoroutinesApi"
                 )
