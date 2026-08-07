@@ -9,32 +9,27 @@ import androidx.room3.Update
 import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import kotlinx.coroutines.flow.Flow
 
-/**
- * @Author: leavesCZY
- * @Date: 2020/11/14 16:14
- * @Desc:
- */
 @Dao
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 internal interface MonitorDao {
 
     @Insert
-    fun insertMonitor(monitor: Monitor): Long
+    fun insertRecord(record: MonitorRecord): Long
 
     @Update
-    fun updateMonitor(monitor: Monitor)
+    fun updateRecord(record: MonitorRecord)
 
     @Query("select * from ${MonitorDatabase.MONITOR_TABLE_NAME} where id =:id")
-    suspend fun queryMonitor(id: Long): Monitor
+    suspend fun queryRecord(id: Long): MonitorRecord
 
     @Query("select * from ${MonitorDatabase.MONITOR_TABLE_NAME} where id =:id")
-    fun queryMonitorAsFlow(id: Long): Flow<Monitor>
+    fun queryRecordAsFlow(id: Long): Flow<MonitorRecord>
 
     @Query("select * from ${MonitorDatabase.MONITOR_TABLE_NAME} order by id desc limit :limit")
-    fun queryMonitors(limit: Int): Flow<List<Monitor>>
+    fun queryRecords(limit: Int): Flow<List<MonitorRecord>>
 
     @Query("select * from ${MonitorDatabase.MONITOR_TABLE_NAME} order by id desc")
-    fun queryMonitors(): PagingSource<Int, Monitor>
+    fun queryRecords(): PagingSource<Int, MonitorRecord>
 
     @Query("delete from ${MonitorDatabase.MONITOR_TABLE_NAME}")
     suspend fun deleteAll()

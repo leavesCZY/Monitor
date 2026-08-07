@@ -8,17 +8,12 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/4/25 18:34
- * @Desc:
- */
-internal fun Project.configureAndroidApplication(commonExtension: ApplicationExtension) {
-    commonExtension.apply {
+internal fun Project.configureAndroidApplication(applicationExtension: ApplicationExtension) {
+    applicationExtension.apply {
         defaultConfig {
             applicationId = "github.leavesczy.monitor.samples"
             targetSdk {
-                version = release(version = 36)
+                version = release(version = androidTargetSdkVersion())
             }
             versionCode = 1
             versionName = "1.0.0"
@@ -29,7 +24,7 @@ internal fun Project.configureAndroidApplication(commonExtension: ApplicationExt
         }
         val basePluginExtension = project.extensions.getByType(BasePluginExtension::class.java)
         basePluginExtension.apply {
-            archivesName.set("Monitor_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
+            archivesName.set("monitor_v${defaultConfig.versionName}_${defaultConfig.versionCode}_${getApkBuildTime()}")
         }
         signingConfigs {
             create("release") {
@@ -74,11 +69,15 @@ internal fun Project.configureAndroidApplication(commonExtension: ApplicationExt
                     "**/*.md",
                     "**/*.version",
                     "**/*.properties",
-                    "**/**/*.properties",
-                    "META-INF/{AL2.0,LGPL2.1}",
-                    "META-INF/CHANGES",
-                    "DebugProbesKt.bin",
-                    "kotlin-tooling-metadata.json"
+                    "**/*.kotlin_module",
+                    "**/CHANGES",
+                    "**/LICENSE.txt",
+                    "**/{AL2.0,LGPL2.1}",
+                    "**/DebugProbesKt.bin",
+                    "**/app-metadata.properties",
+                    "**/kotlin-tooling-metadata.json",
+                    "**/version-control-info.textproto",
+                    "**/androidsupportmultidexversion.txt"
                 )
             }
         }

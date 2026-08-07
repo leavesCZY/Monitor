@@ -6,11 +6,6 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/4/25 18:46
- * @Desc:
- */
 class AndroidRoomConventionPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {

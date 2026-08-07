@@ -5,17 +5,10 @@
             android:name=".internal.ui.MonitorActivity"
             android:exported="false"
             android:launchMode="singleTask"
-            android:taskAffinity="${applicationId}.monitor"
-            android:theme="@style/Theme.Monitor" />
-        <activity
-            android:name=".internal.ui.MonitorDetailsActivity"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:taskAffinity="${applicationId}.monitor"
             android:theme="@style/Theme.Monitor" />
 
         <provider
-            android:name=".internal.MonitorFileProvider"
+            android:name=".internal.core.MonitorFileProvider"
             android:authorities="${applicationId}.MonitorFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">

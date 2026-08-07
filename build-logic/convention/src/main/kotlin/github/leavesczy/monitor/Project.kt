@@ -8,20 +8,15 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-/**
- * @Author: leavesCZY
- * @Date: 2026/4/25 18:34
- * @Desc:
- */
 internal fun Project.configureAndroidProject(commonExtension: CommonExtension) {
     commonExtension.apply {
         compileSdk {
-            version = release(version = 36)
+            version = release(version = androidCompileSdkVersion())
         }
-        buildToolsVersion = "37.0.0"
+        buildToolsVersion = androidBuildToolsVersion()
         defaultConfig.apply {
             minSdk {
-                version = release(version = 23)
+                version = release(version = androidMinSdkVersion())
             }
         }
         buildFeatures.apply {

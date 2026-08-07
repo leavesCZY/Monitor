@@ -1,23 +1,21 @@
 package github.leavesczy.monitor.internal.db
 
-import androidx.room3.TypeConverter
-import github.leavesczy.monitor.internal.JsonFormat
+import androidx.room3.ColumnTypeConverter
+import github.leavesczy.monitor.internal.format.MonitorJsonFormatter
 
-/**
- * @Author: leavesCZY
- * @Date: 2020/11/8 14:43
- * @Desc:
- */
 internal class MonitorTypeConverter {
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromJsonArray(json: String): List<MonitorHttpHeader> {
-        return JsonFormat.fromJsonArray(json, MonitorHttpHeader::class.java)
+        return MonitorJsonFormatter.fromJsonArray(
+            json = json,
+            clazz = MonitorHttpHeader::class.java
+        )
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toJson(list: List<MonitorHttpHeader>): String {
-        return JsonFormat.toJson(list)
+        return MonitorJsonFormatter.toJson(value = list)
     }
 
 }
