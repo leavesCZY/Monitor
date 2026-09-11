@@ -1,21 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
-        <activity
-            android:name=".internal.ui.MonitorActivity"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:taskAffinity="${applicationId}.monitor"
-            android:theme="@style/Theme.Monitor" />
-        <activity
-            android:name=".internal.ui.MonitorDetailsActivity"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:taskAffinity="${applicationId}.monitor"
-            android:theme="@style/Theme.Monitor" />
 
         <provider
-            android:name=".internal.MonitorFileProvider"
+            android:name=".internal.core.MonitorFileProvider"
             android:authorities="${applicationId}.MonitorFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -23,6 +11,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/monitor_file_provider_paths" />
         </provider>
+        <activity
+            android:name=".internal.ui.MonitorActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Monitor" />
 
     </application>
 

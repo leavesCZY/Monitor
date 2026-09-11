@@ -1,0 +1,4 @@
+jdk:
+  - openjdk21
+install:
+  - ./gradlew :monitor:publishToMavenLocal :monitor-no-op:publishToMavenLocal -x test -x lint

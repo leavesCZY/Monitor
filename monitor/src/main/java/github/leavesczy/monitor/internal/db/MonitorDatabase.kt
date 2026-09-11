@@ -1,24 +1,18 @@
 package github.leavesczy.monitor.internal.db
 
 import android.content.Context
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.Database
-import androidx.room3.ExperimentalRoomApi
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverters
-import github.leavesczy.monitor.internal.ContextProvider
+import github.leavesczy.monitor.internal.core.MonitorContextProvider
 import java.util.concurrent.TimeUnit
 
-/**
- * @Author: leavesCZY
- * @Date: 2020/11/8 14:43
- * @Desc:
- */
 @Database(
-    entities = [Monitor::class],
-    version = 44
+    entities = [MonitorRecord::class],
+    version = 1
 )
-@TypeConverters(value = [MonitorTypeConverter::class])
+@ColumnTypeConverters(value = [MonitorTypeConverter::class])
 internal abstract class MonitorDatabase : RoomDatabase() {
 
     companion object {
@@ -36,15 +30,15 @@ internal abstract class MonitorDatabase : RoomDatabase() {
                     if (cachedDatabase != null) {
                         cachedDatabase
                     } else {
-                        val database = createDb(context = ContextProvider.context)
+                        val database =
+                            createDatabase(context = MonitorContextProvider.requireApplication())
                         monitorDatabase = database
                         database
                     }
                 }
             }
 
-        @OptIn(ExperimentalRoomApi::class)
-        private fun createDb(context: Context): MonitorDatabase {
+        private fun createDatabase(context: Context): MonitorDatabase {
             return Room.databaseBuilder(
                 context = context,
                 klass = MonitorDatabase::class.java,

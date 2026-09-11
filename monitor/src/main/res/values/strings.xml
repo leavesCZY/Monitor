@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="monitor_monitor">Monitor</string>
+    <string name="monitor_title">Monitor</string>
     <string name="monitor_overview">Overview</string>
     <string name="monitor_request">Request</string>
     <string name="monitor_response">Response</string>
     <string name="monitor_encoded_body_omitted">(encoded body omitted)</string>
-    <string name="monitor_copy">copy</string>
-    <string name="monitor_copied">copied</string>
-    <string name="monitor_share_as_text">share as text</string>
-    <string name="monitor_share_as_file">share as file</string>
+    <string name="monitor_body_too_large">(body too large to capture)</string>
+    <string name="monitor_copy">Copy</string>
+    <string name="monitor_copied">Copied</string>
+    <string name="monitor_share_as_text">Share as text</string>
+    <string name="monitor_share_as_file">Share as file</string>
     <string name="monitor_notification_channel_id">Monitor</string>
-    <string name="monitor_notification_channel_name">Monitor Http</string>
-    <string name="monitor_notification_channel_description">Automatically record http requests</string>
-    <string name="monitor_notification_title">Monitor Http</string>
+    <string name="monitor_notification_channel_name">Monitor HTTP</string>
+    <string name="monitor_notification_channel_description">Automatically record HTTP requests</string>
+    <string name="monitor_notification_title">Monitor HTTP</string>
+    <string name="monitor_record_not_found">Record not found</string>
 </resources>

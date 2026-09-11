@@ -7,13 +7,13 @@ plugins {
 group = "github.leavesczy.monitor.buildlogic"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
+        jvmTarget = JvmTarget.JVM_21
     }
 }
 
@@ -29,23 +29,23 @@ gradlePlugin {
     plugins {
         register("androidApplication") {
             id = libs.plugins.app.android.application.get().pluginId
-            implementationClass = "ApplicationConventionPlugin"
+            implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("androidLibrary") {
             id = libs.plugins.app.android.library.get().pluginId
-            implementationClass = "LibraryConventionPlugin"
+            implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("androidCompose") {
             id = libs.plugins.app.android.compose.get().pluginId
-            implementationClass = "ComposeConventionPlugin"
+            implementationClass = "AndroidComposeConventionPlugin"
         }
         register("androidxRoom") {
             id = libs.plugins.app.androidx.room.get().pluginId
             implementationClass = "AndroidRoomConventionPlugin"
         }
-        register("libraryPublish") {
-            id = libs.plugins.app.library.publish.get().pluginId
-            implementationClass = "AndroidLibraryPublishConventionPlugin"
+        register("androidPublish") {
+            id = libs.plugins.app.android.publish.get().pluginId
+            implementationClass = "AndroidPublishConventionPlugin"
         }
     }
 }
