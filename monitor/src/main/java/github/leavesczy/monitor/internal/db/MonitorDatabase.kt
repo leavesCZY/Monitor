@@ -9,7 +9,10 @@ import github.leavesczy.monitor.internal.core.MonitorContextProvider
 import java.util.concurrent.TimeUnit
 
 @Database(
-    entities = [MonitorRecord::class],
+    entities = [
+        MonitorRecord::class,
+        MonitorPayload::class
+    ],
     version = 1
 )
 @ColumnTypeConverters(value = [MonitorTypeConverter::class])
@@ -20,6 +23,8 @@ internal abstract class MonitorDatabase : RoomDatabase() {
         private const val MONITOR_DATABASE_NAME = "Monitor"
 
         const val MONITOR_TABLE_NAME = "Monitor"
+
+        const val MONITOR_PAYLOAD_TABLE_NAME = "MonitorPayload"
 
         private var monitorDatabase: MonitorDatabase? = null
 

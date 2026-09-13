@@ -109,12 +109,12 @@ internal object MonitorShareExporter {
     }
 
     private suspend fun queryShareText(recordId: Long): String {
-        val record = runCatching {
-            MonitorDatabase.instance.monitorDao.queryRecord(id = recordId)
+        val recordWithPayload = runCatching {
+            MonitorDatabase.instance.monitorDao.queryRecordWithPayload(id = recordId)
         }.getOrElse { cause ->
             throw MonitorRecordNotFoundException(cause = cause)
         }
-        return MonitorOverviewBuilder.buildShareText(record = record)
+        return MonitorOverviewBuilder.buildShareText(recordWithPayload = recordWithPayload)
     }
 
     private fun createShareFile(application: Application): File {

@@ -1,10 +1,10 @@
 package github.leavesczy.monitor
 
+import github.leavesczy.monitor.internal.capture.MonitorEntry
 import github.leavesczy.monitor.internal.capture.MonitorHttpBodyCapture
 import github.leavesczy.monitor.internal.capture.MonitorRecordFactory
 import github.leavesczy.monitor.internal.core.MonitorRuntime
 import github.leavesczy.monitor.internal.db.MonitorDatabaseWriter
-import github.leavesczy.monitor.internal.db.MonitorRecord
 import kotlinx.coroutines.Deferred
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -27,7 +27,7 @@ class MonitorInterceptor : Interceptor {
             val response = chain.proceed(request = tracking.request)
             finishTracking(tracking = tracking) {
                 MonitorRecordFactory.complete(
-                    record = tracking.pendingRecord,
+                    entry = tracking.pendingEntry,
                     response = response,
                     responseCapture = MonitorHttpBodyCapture.captureResponse(response = response)
                 )
@@ -36,7 +36,7 @@ class MonitorInterceptor : Interceptor {
         } catch (error: Throwable) {
             finishTracking(tracking = tracking) {
                 MonitorRecordFactory.fail(
-                    record = tracking.pendingRecord,
+                    entry = tracking.pendingEntry,
                     error = error
                 )
             }
@@ -47,22 +47,27 @@ class MonitorInterceptor : Interceptor {
     private fun prepareTracking(request: Request): Tracking {
         MonitorRuntime.ensureReady()
         val requestCapture = MonitorHttpBodyCapture.captureRequest(request = request)
-        val pendingRecord = MonitorRecordFactory.createPending(
+        val pendingEntry = MonitorRecordFactory.createPending(
             request = requestCapture.request,
             requestCapture = requestCapture
         )
         return Tracking(
             request = requestCapture.request,
-            pendingRecord = pendingRecord,
-            deferred = MonitorDatabaseWriter.beginTracking(record = pendingRecord)
+            pendingEntry = pendingEntry,
+            deferred = MonitorDatabaseWriter.beginTracking(
+                record = pendingEntry.record,
+                payload = pendingEntry.payload
+            )
         )
     }
 
-    private fun finishTracking(tracking: Tracking, recordProvider: () -> MonitorRecord) {
+    private fun finishTracking(tracking: Tracking, entryProvider: () -> MonitorEntry) {
         runCatching {
+            val entry = entryProvider()
             MonitorDatabaseWriter.completeTracking(
                 trackingDeferred = tracking.deferred,
-                record = recordProvider()
+                record = entry.record,
+                payload = entry.payload
             )
         }.onFailure { throwable ->
             throwable.printStackTrace()
@@ -71,8 +76,8 @@ class MonitorInterceptor : Interceptor {
 
     private class Tracking(
         val request: Request,
-        val pendingRecord: MonitorRecord,
-        val deferred: Deferred<MonitorRecord>
+        val pendingEntry: MonitorEntry,
+        val deferred: Deferred<Long>
     )
 
 }

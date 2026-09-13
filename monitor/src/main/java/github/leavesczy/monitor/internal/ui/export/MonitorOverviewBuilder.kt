@@ -3,6 +3,7 @@ package github.leavesczy.monitor.internal.ui.export
 import github.leavesczy.monitor.internal.db.MonitorHttpHeader
 import github.leavesczy.monitor.internal.db.MonitorHttpState
 import github.leavesczy.monitor.internal.db.MonitorRecord
+import github.leavesczy.monitor.internal.db.MonitorRecordWithPayload
 import github.leavesczy.monitor.internal.format.MonitorBodyFormatter
 import github.leavesczy.monitor.internal.format.MonitorDateTimeFormatter
 import github.leavesczy.monitor.internal.ui.model.httpState
@@ -16,39 +17,41 @@ import github.leavesczy.monitor.internal.ui.viewmodel.MonitorDetailViewState
 internal object MonitorOverviewBuilder {
 
     fun buildDetailViewState(
-        record: MonitorRecord,
+        recordWithPayload: MonitorRecordWithPayload,
         overviewLabel: String,
         requestLabel: String,
         responseLabel: String
     ): MonitorDetailViewState {
+        val record = recordWithPayload.record
         return MonitorDetailViewState(
             title = record.method + " " + record.pathWithQuery,
             tabs = listOf(overviewLabel, requestLabel, responseLabel),
             overview = buildOverview(record = record),
-            requestHeaders = record.requestHeaders,
-            requestBodyFormatted = record.requestBodyFormatted,
-            responseHeaders = record.responseHeaders,
-            responseBodyFormatted = record.responseBodyFormatted
+            requestHeaders = recordWithPayload.payload.requestHeaders,
+            requestBodyFormatted = recordWithPayload.requestBodyFormatted,
+            responseHeaders = recordWithPayload.payload.responseHeaders,
+            responseBodyFormatted = recordWithPayload.responseBodyFormatted
         )
     }
 
-    fun buildShareText(record: MonitorRecord): String {
+    fun buildShareText(recordWithPayload: MonitorRecordWithPayload): String {
+        val record = recordWithPayload.record
         return buildString {
             append(buildOverview(record = record).format())
             append("\n\n")
             append("----------Request----------")
             append("\n\n")
-            append(record.requestHeaders.format())
-            if (record.requestBodyFormatted.isNotBlank()) {
+            append(recordWithPayload.payload.requestHeaders.format())
+            if (recordWithPayload.requestBodyFormatted.isNotBlank()) {
                 append("\n\n")
-                append(record.requestBodyFormatted)
+                append(recordWithPayload.requestBodyFormatted)
             }
             append("\n\n")
             append("----------Response----------")
             append("\n\n")
-            append(record.responseHeaders.format())
+            append(recordWithPayload.payload.responseHeaders.format())
             append("\n\n")
-            append(record.responseBodyFormatted)
+            append(recordWithPayload.responseBodyFormatted)
         }
     }
 

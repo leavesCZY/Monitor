@@ -2,6 +2,7 @@ package github.leavesczy.monitor.internal.ui.model
 
 import github.leavesczy.monitor.internal.db.MonitorHttpState
 import github.leavesczy.monitor.internal.db.MonitorRecord
+import github.leavesczy.monitor.internal.db.MonitorRecordWithPayload
 import github.leavesczy.monitor.internal.format.MonitorBodyFormatter
 import github.leavesczy.monitor.internal.format.MonitorDateTimeFormatter
 
@@ -54,16 +55,16 @@ internal val MonitorRecord.totalSizeFormatted: String
         }
     }
 
-internal val MonitorRecord.requestBodyFormatted: String
+internal val MonitorRecordWithPayload.requestBodyFormatted: String
     get() = MonitorBodyFormatter.formatBody(
-        body = requestBody,
-        contentType = requestContentType,
-        contentLength = requestContentLength
+        body = payload.requestBody,
+        contentType = record.requestContentType,
+        contentLength = record.requestContentLength
     )
 
-internal val MonitorRecord.responseBodyFormatted: String
+internal val MonitorRecordWithPayload.responseBodyFormatted: String
     get() = MonitorBodyFormatter.formatBody(
-        body = responseBody,
-        contentType = responseContentType,
-        contentLength = responseContentLength
+        body = payload.responseBody,
+        contentType = record.responseContentType,
+        contentLength = record.responseContentLength
     )

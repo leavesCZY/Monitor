@@ -1,10 +1,11 @@
 package github.leavesczy.monitor.internal.ui
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -16,18 +17,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import github.leavesczy.monitor.internal.ui.screen.MonitorDetailScreen
 import github.leavesczy.monitor.internal.ui.screen.MonitorListScreen
 import github.leavesczy.monitor.internal.ui.theme.MonitorTheme
 import github.leavesczy.monitor.internal.ui.viewmodel.MonitorViewModel
 
-internal class MonitorActivity : AppCompatActivity() {
+internal class MonitorActivity : ComponentActivity() {
 
     private val monitorViewModel by viewModels<MonitorViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             MonitorTheme {
@@ -52,9 +52,7 @@ private fun MonitorPage(viewModel: MonitorViewModel) {
         MonitorListScreen(
             pagingDataFlow = viewModel.pagingDataFlow,
             onClickClear = viewModel::onClickClear,
-            onClickRecord = { record ->
-                viewModel.openDetail(recordId = record.id)
-            }
+            onClickRecord = viewModel::openDetail
         )
         AnimatedVisibility(
             modifier = Modifier

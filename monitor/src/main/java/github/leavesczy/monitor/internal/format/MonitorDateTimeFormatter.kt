@@ -22,8 +22,7 @@ internal object MonitorDateTimeFormatter {
         if (timestamp <= 0L) {
             return ""
         }
-        val formatter = SimpleDateFormat(pattern, Locale.US)
-        return formatter.format(Date(timestamp))
+        return SimpleDateFormat(pattern, Locale.US).format(Date(timestamp))
     }
 
 }

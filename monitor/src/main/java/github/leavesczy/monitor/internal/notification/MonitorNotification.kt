@@ -15,8 +15,10 @@ import github.leavesczy.monitor.internal.db.MonitorDatabase
 import github.leavesczy.monitor.internal.ui.MonitorActivity
 import github.leavesczy.monitor.internal.ui.model.notificationText
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -65,6 +67,7 @@ internal object MonitorNotification {
         NotificationManagerCompat.from(context).createNotificationChannel(channel)
     }
 
+    @OptIn(FlowPreview::class)
     private fun observeRecentRecords(context: Application) {
         val channelId =
             getString(context = context, resId = R.string.monitor_notification_channel_id)
@@ -75,6 +78,7 @@ internal object MonitorNotification {
         recordObserver?.cancel()
         recordObserver = MonitorScope.io.launch(context = Dispatchers.Default) {
             MonitorDatabase.instance.monitorDao.queryRecords(limit = 7)
+                .debounce(timeoutMillis = 300)
                 .map { records ->
                     records.map { record ->
                         record.notificationText

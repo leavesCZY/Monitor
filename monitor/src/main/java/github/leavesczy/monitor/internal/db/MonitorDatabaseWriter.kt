@@ -5,29 +5,41 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 internal object MonitorDatabaseWriter {
 
-    fun beginTracking(record: MonitorRecord): Deferred<MonitorRecord> {
+    private val writeMutex = Mutex()
+
+    fun beginTracking(
+        record: MonitorRecord,
+        payload: MonitorPayload
+    ): Deferred<Long> {
         return MonitorScope.io.async {
-            runCatching {
-                val id = MonitorDatabase.instance.monitorDao.insertRecord(record = record)
-                record.copy(id = id)
-            }.onFailure { throwable ->
-                if (throwable !is CancellationException) {
-                    throwable.printStackTrace()
-                }
-            }.getOrThrow()
+            writeMutex.withLock {
+                runCatching {
+                    MonitorDatabase.instance.monitorDao.insertPending(
+                        record = record,
+                        payload = payload
+                    )
+                }.onFailure { throwable ->
+                    if (throwable !is CancellationException) {
+                        throwable.printStackTrace()
+                    }
+                }.getOrThrow()
+            }
         }
     }
 
     fun completeTracking(
-        trackingDeferred: Deferred<MonitorRecord>,
-        record: MonitorRecord
+        trackingDeferred: Deferred<Long>,
+        record: MonitorRecord,
+        payload: MonitorPayload
     ) {
         MonitorScope.io.launch {
             val trackedId = runCatching {
-                trackingDeferred.await().id
+                trackingDeferred.await()
             }.onFailure { throwable ->
                 if (throwable !is CancellationException) {
                     throwable.printStackTrace()
@@ -35,23 +47,16 @@ internal object MonitorDatabaseWriter {
             }.getOrElse {
                 return@launch
             }
-            val recordToPersist = record.copy(id = trackedId)
-            val persisted = runCatching {
-                MonitorDatabase.instance.monitorDao.updateRecord(record = recordToPersist)
-            }
-            if (persisted.isSuccess) {
-                return@launch
-            }
-            val failure = persisted.exceptionOrNull()
-            if (failure is CancellationException) {
-                return@launch
-            }
-            failure?.printStackTrace()
-            runCatching {
-                MonitorDatabase.instance.monitorDao.updateRecord(record = recordToPersist)
-            }.onFailure { retryError ->
-                if (retryError !is CancellationException) {
-                    retryError.printStackTrace()
+            writeMutex.withLock {
+                runCatching {
+                    MonitorDatabase.instance.monitorDao.completeRecord(
+                        record = record.copy(id = trackedId),
+                        payload = payload.copy(recordId = trackedId)
+                    )
+                }.onFailure { throwable ->
+                    if (throwable !is CancellationException) {
+                        throwable.printStackTrace()
+                    }
                 }
             }
         }

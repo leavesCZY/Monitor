@@ -29,7 +29,7 @@ internal class MonitorViewModel(application: Application) :
             pageSize = 20,
             initialLoadSize = 30,
             prefetchDistance = 10,
-            enablePlaceholders = true
+            enablePlaceholders = false
         ),
         pagingSourceFactory = {
             MonitorDatabase.instance.monitorDao.queryRecords()
@@ -108,12 +108,12 @@ internal class MonitorViewModel(application: Application) :
     private fun observeDetail(recordId: Long) {
         detailObserverJob?.cancel()
         detailObserverJob = viewModelScope.launch {
-            MonitorDatabase.instance.monitorDao.queryRecordAsFlow(id = recordId)
+            MonitorDatabase.instance.monitorDao.queryRecordWithPayloadAsFlow(id = recordId)
                 .distinctUntilChanged()
-                .collectLatest { record ->
+                .collectLatest { recordWithPayload ->
                     detailViewState = withContext(context = Dispatchers.Default) {
                         MonitorOverviewBuilder.buildDetailViewState(
-                            record = record,
+                            recordWithPayload = recordWithPayload,
                             overviewLabel = getString(resId = R.string.monitor_overview),
                             requestLabel = getString(resId = R.string.monitor_request),
                             responseLabel = getString(resId = R.string.monitor_response)

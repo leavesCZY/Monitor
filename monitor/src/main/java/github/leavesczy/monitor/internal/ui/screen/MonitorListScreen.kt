@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.Flow
 internal fun MonitorListScreen(
     pagingDataFlow: Flow<PagingData<MonitorRecord>>,
     onClickClear: () -> Unit,
-    onClickRecord: (MonitorRecord) -> Unit
+    onClickRecord: (Long) -> Unit
 ) {
     val pagingItems = pagingDataFlow.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
@@ -126,7 +126,7 @@ private fun MonitorListTopBar(onClickClear: () -> Unit) {
 @Composable
 private fun MonitorListItem(
     record: MonitorRecord,
-    onClick: (MonitorRecord) -> Unit
+    onClick: (Long) -> Unit
 ) {
     val titleColor = monitorStatusColor(
         httpState = record.httpState,
@@ -136,7 +136,7 @@ private fun MonitorListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = {
-                onClick(record)
+                onClick(record.id)
             })
     ) {
         Row(

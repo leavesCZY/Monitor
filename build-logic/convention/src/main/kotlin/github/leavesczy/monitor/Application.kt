@@ -18,9 +18,6 @@ internal fun Project.configureAndroidApplication(applicationExtension: Applicati
             versionCode = 1
             versionName = "1.0.0"
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-            vectorDrawables {
-                useSupportLibrary = true
-            }
         }
         val basePluginExtension = project.extensions.getByType(BasePluginExtension::class.java)
         basePluginExtension.apply {
@@ -32,7 +29,6 @@ internal fun Project.configureAndroidApplication(applicationExtension: Applicati
                 keyAlias = "leavesCZY"
                 keyPassword = "123456"
                 storePassword = "123456"
-                enableV1Signing = true
                 enableV2Signing = true
                 enableV3Signing = true
                 enableV4Signing = true
